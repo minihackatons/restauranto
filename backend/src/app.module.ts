@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 
 import { ItemsModule } from './items/items.module';
+import { CategoriesModule } from './categories/categories.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,11 +18,13 @@ import { ItemsModule } from './items/items.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      autoLoadEntities: true,
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
 
-    ItemsModule
+    AuthModule,
+    ItemsModule,
+    CategoriesModule
   ],
   controllers: [AppController, ],
   providers: [AppService],

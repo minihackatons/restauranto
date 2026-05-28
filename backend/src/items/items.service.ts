@@ -5,7 +5,7 @@ import { Item } from '../models/item.entity';
 import { CreateItemDto } from "../dtos/item.dto";
 
 @Injectable()
-export class ItemService {
+export class ItemsService {
     constructor(
         @InjectRepository(Item)
         private itemRepository: Repository<Item>
@@ -21,5 +21,9 @@ export class ItemService {
         });
 
         return this.itemRepository.save(newItem);
+    }
+
+    async getItems(){
+        return this.itemRepository.find();
     }
 }
