@@ -16,6 +16,7 @@ export const Sidebar: React.FC = () => {
   const isActive = (path: string) => {
     if (path === '/dashboard' && location.pathname === '/dashboard') return styles.active;
     if (path === '/inventory' && location.pathname === '/inventory') return styles.active;
+    if (path === '/orders' && location.pathname === '/orders') return styles.active;
     return '';
   };
 
@@ -35,26 +36,28 @@ export const Sidebar: React.FC = () => {
             <Home className={styles.navIcon} />
             <span className={styles.navLabel}>Geral</span>
           </Link>
-          <a href="#" className={styles.navItem}>
+          <Link to="/orders-list" className={`${styles.navItem} ${isActive('/orders-list')}`}>
             <Package className={styles.navIcon} />
             <span className={styles.navLabel}>Pedidos</span>
-          </a>
+          </Link>
           
-          <Link to="/items/new" className={styles.fabBtn}>
+          <Link to="/orders" className={styles.fabBtn}>
             <div className={styles.fabIconWrapper}>
               <Plus className={styles.fabIcon} />
             </div>
             <span className={styles.navLabel + ' ' + styles.mobileHidden}>Adicionar</span>
           </Link>
           
+         <div className={styles.navGroup}>
           <Link to="/inventory" className={`${styles.navItem} ${isActive('/inventory')}`}>
             <Boxes className={styles.navIcon} />
             <span className={styles.navLabel}>Inventário</span>
           </Link>
-          <a href="#" className={styles.navItem}>
+          <Link to="/financeiro" className={`${styles.navItem} ${isActive('/financeiro')}`}>
             <CircleDollarSign className={styles.navIcon} />
             <span className={styles.navLabel}>Financeiro</span>
-          </a>
+          </Link>
+        </div>
         </div>
       </nav>
       
