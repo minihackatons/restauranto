@@ -20,6 +20,7 @@ export class ItemsService {
         private stockItemRepository: Repository<StockItem>
     ) {}
 
+    // TODO: REFATORAR ESTA BUXA
     async createItem(createItemDto: CreateItemDto, restaurantId: string, photoUrl?: string): Promise <Item>{
         const { categoryId, ingredients, ...itemData } = createItemDto;
 

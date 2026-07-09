@@ -5,6 +5,7 @@ import { OrderItem } from 'src/models/order-item.entity';
 import { Order } from 'src/models/order.entity';
 import { Item } from 'src/models/item.entity';
 import { In, Repository } from 'typeorm';
+import { FinanceService } from 'src/finance/finance.service';
 @Injectable()
 export class OrdersService {
     constructor(
@@ -13,9 +14,11 @@ export class OrdersService {
         @InjectRepository(Order)
         private orderRepository: Repository<Order>,
         @InjectRepository(Item)
-        private itemRepository: Repository<Item>
+        private itemRepository: Repository<Item>,
+        private readonly financeService: FinanceService
     ){}
 
+    // TODO: REFATORAR ESTA BUXA
     async create(dto: CreateOrderDto, restaurantId: string){
         const itemIds = dto.items.map(item => item.itemId);
 
@@ -60,7 +63,9 @@ export class OrdersService {
             channel: dto.channel,
             deliveryDate: dto.deliveryDate,
         })
-        return this.orderRepository.save(order);
+
+        const savedOrder = await this.orderRepository.save(order);
+        this.financeService.registerOrder(restaurantId, savedOrder.id, savedOrder.totalAmount);        
     }
 
     async findAll(restaurantId: string) {

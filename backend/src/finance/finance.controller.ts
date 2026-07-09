@@ -7,11 +7,12 @@ import { FinanceService } from './finance.service';
 export class FinanceController {
   constructor(private readonly financeService: FinanceService) {}
 
-  @Get('overview')
+  @Get()
   getOverview(@Req() req: any) {
     if (!req.user.restaurantId) {
       throw new ForbiddenException('Usuário não possui restaurante vinculado.');
     }
+    console.log("vfuiehgiuerbigew")
     return this.financeService.getOverview(req.user.restaurantId);
   }
 }

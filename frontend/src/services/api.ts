@@ -176,5 +176,14 @@ export const api = {
     }
     const res = await response.json();
     return res.data || res;
+  },
+
+  fetchFinanceOverview: async () => {
+    const response = await api.get('/finance');
+    if (!response.ok) {
+      throw new Error('Erro ao buscar visão geral financeira');
+    }
+    const res = await response.json();
+    return res.data || res;
   }
 };
