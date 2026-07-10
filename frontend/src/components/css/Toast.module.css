@@ -1,0 +1,70 @@
+.toastContainer {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  min-width: 320px;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.iconContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconSuccess {
+  color: #10b981;
+}
+
+.iconError {
+  color: #ef4444;
+}
+
+.iconInfo {
+  color: #3b82f6;
+}
+
+.text {
+  flex: 1;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.closeBtn:hover {
+  background: #374151;
+  color: #fff;
+}
