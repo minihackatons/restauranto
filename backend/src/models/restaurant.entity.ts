@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateCol
 import { Category } from './category.entity';
 import { Order } from './order.entity';
 import { User } from './user.entity';
+import { OrderItem } from './order-item.entity';
 
 @Entity()
 export class Restaurant {
@@ -28,6 +29,9 @@ export class Restaurant {
 
   @OneToMany(() => User, (user) => user.restaurant)
   users!: User[];
+
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.restaurant, { cascade: true })
+  orderItems!: OrderItem[];
 
   @CreateDateColumn()
   createdAt!: Date;

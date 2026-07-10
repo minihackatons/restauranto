@@ -116,7 +116,7 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.label}>Custo Unitário (R$)</label>
+              <label className={styles.label}>Custo Total (R$)</label>
               <input 
                 type="number" 
                 step="0.01"

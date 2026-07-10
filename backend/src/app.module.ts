@@ -10,6 +10,8 @@ import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
 import { RestaurantsModule } from './restaurants/restaurants.module';
 import { StockModule } from './stock/stock.module';
+import { OrdersModule } from './orders/orders.module';
+import { FinanceModule } from './finance/finance.module';
 
 @Module({
   imports: [
@@ -28,7 +30,9 @@ import { StockModule } from './stock/stock.module';
     ItemsModule,
     CategoriesModule,
     RestaurantsModule,
-    StockModule
+    StockModule,
+    OrdersModule,
+    FinanceModule
   ],
   controllers: [AppController, ],
   providers: [AppService],

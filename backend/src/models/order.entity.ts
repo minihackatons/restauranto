@@ -21,4 +21,25 @@ export class Order {
 
   @CreateDateColumn()
   createdAt!: Date;
+
+  @Column({ nullable: true })
+  clientName!: string;
+
+  @Column({ nullable: true })
+  clientContact!: string;
+
+  @Column({ nullable: true })
+  deliveryAddress!: string;
+
+  @Column({ nullable: true })
+  paymentMethod!: string;
+
+  @Column({ nullable: true })
+  channel!: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  deliveryDate!: Date;
+
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  discount!: number;
 }

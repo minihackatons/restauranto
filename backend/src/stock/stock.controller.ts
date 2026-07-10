@@ -44,17 +44,4 @@ export class StockController {
 
         return this.stockService.findOne(+id, req.user.restaurantId);
     }
-
-    @Patch(':id')
-    async updateStockItem(
-        @Param('id') id: string,
-        @Body() body: UpdateStockItemDto,
-        @Req() req: any,
-    ){
-        if (!req.user.restaurantId) {
-            throw new ForbiddenException('Usuário não possui restaurante vinculado.');
-        }
-
-        return this.stockService.update(+id, body, req.user.restaurantId);
-    }
 }

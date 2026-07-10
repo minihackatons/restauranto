@@ -5,6 +5,9 @@ import LandingPage from './pages/LandingPage';
 import DashboardPage from './pages/DashboardPage';
 import InventoryPage from './pages/InventoryPage';
 import SettingsPage from './pages/SettingsPage';
+import CreateOrderPage from './pages/CreateOrderPage';
+import OrdersListPage from './pages/OrdersListPage';
+import FinancePage from './pages/FinancePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -36,6 +39,30 @@ function App() {
           element={
             <ProtectedRoute>
               <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <CreateOrderPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders-list"
+          element={
+            <ProtectedRoute>
+              <OrdersListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/financeiro"
+          element={
+            <ProtectedRoute>
+              <FinancePage />
             </ProtectedRoute>
           }
         />

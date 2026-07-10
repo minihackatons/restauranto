@@ -158,5 +158,32 @@ export const api = {
     }
     const res = await response.json();
     return res.data || res;
+  },
+
+  createOrder: async (payload: any) => {
+    const response = await api.post("/orders", payload);
+    if (!response.ok) {
+      const err = await response.json().catch(() => null);
+      throw new Error(err?.message || 'Erro ao criar pedido');
+    }
+    return response.json();
+  },
+
+  fetchOrders: async () => {
+    const response = await api.get('/orders');
+    if (!response.ok) {
+      throw new Error('Erro ao buscar pedidos');
+    }
+    const res = await response.json();
+    return res.data || res;
+  },
+
+  fetchFinanceOverview: async () => {
+    const response = await api.get('/finance');
+    if (!response.ok) {
+      throw new Error('Erro ao buscar visão geral financeira');
+    }
+    const res = await response.json();
+    return res.data || res;
   }
 };
