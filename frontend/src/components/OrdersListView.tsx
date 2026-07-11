@@ -1,5 +1,6 @@
 import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Printer } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import styles from '../pages/css/OrdersListPage.module.css';
 
 interface OrdersListViewProps {
@@ -8,12 +9,21 @@ interface OrdersListViewProps {
   filteredOrders: any[];
 }
 
-export const OrdersListView: React.FC<OrdersListViewProps> = ({ isLoading, error, filteredOrders }) => {
-  const getBorderColor = (index: number) => {
-    const colors = ['#f5c542', '#42b6f5', '#4cd964'];
-    return colors[index % colors.length];
-  };
+const statusMap: Record<string, string> = {
+  'PENDING': 'Pendente',
+  'PREPARING': 'Preparando',
+  'READY': 'Pronto',
+  'DELIVERED': 'Entregue'
+};
 
+const statusColors: Record<string, { bg: string, text: string }> = {
+  'PENDING': { bg: '#ff9500', text: '#fff' },
+  'PREPARING': { bg: '#34c759', text: '#fff' },
+  'READY': { bg: '#007aff', text: '#fff' },
+  'DELIVERED': { bg: '#8e8e93', text: '#fff' }
+};
+
+export const OrdersListView: React.FC<OrdersListViewProps> = ({ isLoading, error, filteredOrders }) => {
   return (
     <div className={styles.ordersList}>
       {isLoading && <div className={styles.emptyState}>Carregando pedidos...</div>}
@@ -24,53 +34,87 @@ export const OrdersListView: React.FC<OrdersListViewProps> = ({ isLoading, error
         <div className={styles.emptyState}>Nenhum pedido encontrado.</div>
       )}
 
-      {!isLoading && filteredOrders?.map((order: any, index: number) => {
-        const deliveryDateStr = order.deliveryDate ? order.deliveryDate : order.createdAt;
-        const deliveryDate = new Date(deliveryDateStr);
-        
-        // Native JS Date formatting
-        const formattedTime = deliveryDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        const formattedDate = deliveryDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-        
-        return (
-          <div key={order.id} className={styles.orderCard} style={{ borderTopColor: getBorderColor(index) }}>
-            <div className={styles.orderHeader}>
-              <div className={styles.clientInfo}>
-                <span className={styles.clientName}>{order.clientName || 'Cliente sem nome'}</span>
-                {order.channel === 'ifood' && <span className={styles.urgentBadge} style={{backgroundColor: '#ea1d2c'}}>iFood</span>}
-                {/* Example of urgent badge condition, could be based on time */}
-                {index === 0 && <span className={styles.urgentBadge}>! Urgente</span>}
-              </div>
-              <div className={styles.timeInfo}>
-                <span className={styles.timeText}>{formattedTime}</span>
-                <span className={styles.dateText}>{formattedDate}</span>
-              </div>
-            </div>
+      <div className={styles.receiptGrid}>
+        {!isLoading && filteredOrders?.map((order: any) => {
+          const deliveryDateStr = order.deliveryDate ? order.deliveryDate : order.createdAt;
+          const deliveryDate = new Date(deliveryDateStr);
+          
+          const formattedTime = deliveryDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+          const formattedDate = deliveryDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+          
+          const currentStatus = order.status || 'PENDING';
+          const colors = statusColors[currentStatus] || statusColors['PENDING'];
+          const totalAmount = `R$ ${Number(order.totalAmount).toFixed(2).replace('.', ',')}`;
 
-            <div className={styles.itemsList}>
-              {order.items?.map((orderItem: any) => (
-                <div key={orderItem.id} className={styles.orderItemLine}>
-                  <span className={styles.itemQty}>{orderItem.quantity}x</span>
-                  <span>{orderItem.item?.name || 'Item'}</span>
+          return (
+            <div key={order.id} className={styles.receiptCard}>
+              
+              {/* Top Header */}
+              <div className={styles.receiptHeader}>
+                <div className={styles.receiptIdRow}>
+                  <span className={styles.receiptId}>ORD. {order.id.slice(0, 3)}</span>
+                  <div className={styles.statusWrapper}>
+                    <div className={styles.statusIndicator} style={{ color: colors.bg }}>
+                      <div className={styles.statusDot} style={{ backgroundColor: colors.bg }}></div>
+                      {statusMap[currentStatus]}
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
-
-            {order.deliveryAddress && (
-              <div className={styles.observationBox}>
-                Endereço: {order.deliveryAddress}
+                <h3 className={styles.receiptClient}>{order.clientName || 'Cliente sem nome'}</h3>
               </div>
-            )}
 
-            <div className={styles.orderFooter}>
-              <span className={styles.totalAmount}>R$ {Number(order.totalAmount).toFixed(2).replace('.', ',')}</span>
-              <button className={styles.detailsBtn}>
-                Mais Detalhes <ChevronRight size={16} />
-              </button>
+              {/* Items Section */}
+              <div className={styles.receiptItemsSection}>
+                <div className={styles.receiptItemsHeader}>
+                  <span>ITENS</span>
+                </div>
+                
+                <div className={styles.receiptItemsList}>
+                  {order.items?.map((orderItem: any) => (
+                    <div key={orderItem.id} className={styles.receiptItemRow}>
+                      <div className={styles.receiptItemLeft}>
+                        <span className={styles.receiptItemQty}>{orderItem.quantity}x</span>
+                        <span className={styles.receiptItemName}>{orderItem.item?.name || 'Item'}</span>
+                      </div>
+                      <span className={styles.receiptItemPrice}>
+                        R$ {Number(orderItem.unitPrice * orderItem.quantity).toFixed(2).replace('.', ',')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Footer Total */}
+              <div className={styles.receiptFooter}>
+                <span className={styles.receiptDue}>Para: {formattedDate}</span>
+                <span className={styles.receiptTotal}>{totalAmount}</span>
+              </div>
+
+              {/* Actions and Select */}
+              <div className={styles.receiptActions}>
+                <select 
+                  className={styles.styledSelect} 
+                  value={currentStatus} 
+                  onChange={(e) => console.log('Status change not implemented:', e.target.value)}
+                >
+                  {Object.entries(statusMap).map(([key, label]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
+                <div className={styles.buttonsRow}>
+                  <button className={styles.actionBtnPrimaryFlex}>
+                    <Printer size={16} /> Imprimir
+                  </button>
+                  <Link to={`/pedido/${order.id}`} className={styles.actionBtnSecondaryFlex} style={{ textDecoration: 'none' }}>
+                    Detalhes <ChevronRight size={16} />
+                  </Link>
+                </div>
+              </div>
+
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };

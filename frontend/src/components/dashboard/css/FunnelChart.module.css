@@ -1,0 +1,50 @@
+.funnelContainer {
+  background: rgba(28, 28, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(20px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #fff;
+}
+
+.funnelStage {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.barWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: #fff;
+  transition: width 0.3s ease;
+  min-width: 120px;
+}
+
+.label {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.value {
+  font-weight: 700;
+  font-size: 1rem;
+}

@@ -4,7 +4,7 @@ import { CreateOrderDto } from 'src/dtos/order.dto';
 import { OrderItem } from 'src/models/order-item.entity';
 import { Order } from 'src/models/order.entity';
 import { Item } from 'src/models/item.entity';
-import { In, Repository } from 'typeorm';
+import { In, Repository, MoreThanOrEqual, Not } from 'typeorm';
 import { FinanceService } from 'src/finance/finance.service';
 @Injectable()
 export class OrdersService {
@@ -80,5 +80,79 @@ export class OrdersService {
             },
             order: { createdAt: 'DESC' }
         });
+    }
+
+    async findOne(restaurantId: string, id: string) {
+        return this.orderRepository.findOne({
+            where: { id, restaurant: { id: restaurantId } },
+            relations: {
+                items: {
+                    item: true
+                }
+            }
+        });
+    }
+
+    async getDashboardData(restaurantId: string, daysAgo: number = 7) {
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - daysAgo);
+
+        const totalOrders = await this.orderRepository.count({
+            where: {
+                restaurant: { id: restaurantId },
+                createdAt: MoreThanOrEqual(startDate),
+            }
+        });
+
+        const urgentOrders = await this.orderRepository.find({
+            where: { 
+                restaurant: { id: restaurantId },
+                status: Not('DELIVERED')
+            },
+            order: { deliveryDate: 'ASC' },
+            take: 5,
+            relations: {
+                items: {
+                    item: true
+                }
+            }
+        });
+
+        const orderItems = await this.orderItemRepository.find({
+            where: {
+                order: {
+                    restaurant: { id: restaurantId },
+                    createdAt: MoreThanOrEqual(startDate)
+                }
+            },
+            relations: {
+                item: true
+            }
+        });
+
+        const itemsCount: Record<string, { name: string, count: number }> = {};
+        for (const oi of orderItems) {
+            if (!oi.item) continue;
+            const name = oi.item.name;
+            if (!itemsCount[name]) {
+                itemsCount[name] = { name, count: 0 };
+            }
+            itemsCount[name].count += oi.quantity;
+        }
+
+        const topItems = Object.values(itemsCount)
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+
+        return {
+            totalOrders,
+            urgentOrders,
+            topItems,
+            funnel: {
+                views: 1250, // mock
+                clicks: 430, // mock
+                orders: totalOrders // real
+            }
+        };
     }
 }

@@ -1,4 +1,3 @@
-import React from 'react';
 import styles from '../../pages/css/FinancePage.module.css';
 
 export interface Transaction {
