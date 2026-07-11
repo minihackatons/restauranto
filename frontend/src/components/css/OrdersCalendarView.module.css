@@ -1,0 +1,89 @@
+.calendarWrapper {
+  /* Core FullCalendar Variables */
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: rgba(28, 28, 30, 0.6);
+  --fc-neutral-text-color: #8e8e93;
+  --fc-border-color: rgba(255, 255, 255, 0.08);
+
+  /* Buttons */
+  --fc-button-text-color: #ffffff;
+  --fc-button-bg-color: rgba(28, 28, 30, 0.8);
+  --fc-button-border-color: rgba(255, 255, 255, 0.08);
+  --fc-button-hover-bg-color: rgba(255, 255, 255, 0.1);
+  --fc-button-hover-border-color: rgba(255, 255, 255, 0.15);
+  --fc-button-active-bg-color: rgba(255, 255, 255, 0.15);
+  --fc-button-active-border-color: rgba(255, 255, 255, 0.2);
+
+  /* Today Highlight */
+  --fc-today-bg-color: rgba(99, 102, 241, 0.25);
+  
+  /* Events */
+  --fc-event-bg-color: #6366f1;
+  --fc-event-border-color: #6366f1;
+  --fc-event-text-color: #ffffff;
+  
+  color: #ffffff;
+  font-family: inherit;
+  background-color: rgba(28, 28, 30, 0.4);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* Adjust toolbar typography */
+.calendarWrapper :global(.fc-toolbar-title) {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+/* Adjust cell text colors */
+.calendarWrapper :global(.fc-col-header-cell-cushion),
+.calendarWrapper :global(.fc-daygrid-day-number) {
+  color: #e0e0e0;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+/* Make today's number pop out as a solid circle */
+.calendarWrapper :global(.fc-day-today .fc-daygrid-day-top) {
+  flex-direction: row;
+}
+
+.calendarWrapper :global(.fc-day-today .fc-daygrid-day-number) {
+  background-color: #6366f1;
+  color: #ffffff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px;
+  font-weight: 700;
+}
+
+/* Better rounded corners for buttons */
+.calendarWrapper :global(.fc-button) {
+  border-radius: 8px;
+  text-transform: capitalize;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+/* Remove default focus outline and add a custom subtle one */
+.calendarWrapper :global(.fc-button:focus) {
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.5);
+}
+
+/* Header layout adjustments */
+.calendarWrapper :global(.fc-header-toolbar) {
+  margin-bottom: 1.5em !important;
+}
