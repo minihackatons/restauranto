@@ -65,7 +65,9 @@ export class OrdersService {
         })
 
         const savedOrder = await this.orderRepository.save(order);
-        this.financeService.registerOrder(restaurantId, savedOrder.id, savedOrder.totalAmount);        
+        this.financeService.registerOrder(restaurantId, savedOrder.id, savedOrder.totalAmount);
+        
+        return savedOrder;
     }
 
     async findAll(restaurantId: string) {

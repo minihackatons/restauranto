@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import { api } from '../services/api';
 import styles from './css/CreateOrderPage.module.css';
+import { useToast } from '../components/Toast'
 
 interface Item {
   id: string;
@@ -36,15 +37,18 @@ const CreateOrderPage: React.FC = () => {
     queryFn: api.fetchMenuItems
   });
 
+  const {showToast} = useToast();
+
   // Create Order Mutation
   const createOrderMutation = useMutation({
     mutationFn: api.createOrder,
     onSuccess: () => {
-      alert('Pedido concluído com sucesso!');
+      showToast('Pedido registrado com sucesso!', 'success');
       setCart([]);
     },
     onError: (error: any) => {
-      alert(`Erro: ${error.message}`);
+      showToast('Erro ao registrar pedido. Verifique os dados.', 'error');
+      console.log(error);
     }
   });
 

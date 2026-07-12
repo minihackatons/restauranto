@@ -18,6 +18,9 @@ export class FinanceService {
       },
       relations: {
         order: true
+      },
+      order: {
+        createdAt: 'ASC'
       }
     });
   }
@@ -50,5 +53,20 @@ export class FinanceService {
     })
 
     return this.financeRepository.save(stockRecord);
+  }
+
+  async registerExpense(restaurantId: string, payload: { description: string; type?: 'INCOME' | 'EXPENSE'; value: number; createdAt?: string | Date }) {
+    const expenseRecord = this.financeRepository.create({
+      restaurant: {
+        id: restaurantId
+      },
+      type: payload.type || 'EXPENSE',
+      category: 'OTHER',
+      description: payload.description,
+      value: payload.value,
+      ...(payload.createdAt && { createdAt: new Date(payload.createdAt) })
+    });
+
+    return this.financeRepository.save(expenseRecord);
   }
 }

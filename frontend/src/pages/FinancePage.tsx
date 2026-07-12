@@ -6,14 +6,18 @@ import { PageHeader } from '../components/Finance/PageHeader';
 import { FinanceChart } from '../components/Finance/FinanceChart';
 import { PeriodSummaryCard } from '../components/Finance/PeriodSummaryCard';
 import { RecentTransactionsList, type Transaction } from '../components/Finance/RecentTransactionsList';
+import { AddExpenseModal } from '../components/Finance/AddExpenseModal';
+import { Plus } from 'lucide-react';
 import styles from './css/FinancePage.module.css';
+import modalStyles from '../components/css/CreateItemModal.module.css';
 
 const formatCurrency = (val: number) => `R$ ${Number(val).toFixed(2).replace('.', ',')}`;
 
 const FinancePage: React.FC = () => {
   const [range, setRange] = useState<'week' | 'month'>('week');
+  const [isAddExpenseModalOpen, setIsAddExpenseModalOpen] = useState(false);
 
-  const { data: financeOverview, isLoading, error } = useQuery({
+  const { data: financeOverview, isLoading, error, refetch } = useQuery({
     queryKey: ['financeOverview', range],
     queryFn: api.fetchFinanceOverview,
   });
@@ -84,9 +88,24 @@ const FinancePage: React.FC = () => {
             <PeriodSummaryCard totalIn={totalIn} totalOut={totalOut} profit={profit} formatCurrency={formatCurrency} />
           </div>
 
-          <RecentTransactionsList transactions={currentTransactions} formatCurrency={formatCurrency} />
+          <RecentTransactionsList transactions={currentTransactions.toReversed()} formatCurrency={formatCurrency} />
         </div>
+
+        <button 
+          className={modalStyles.inventoryFab}
+          onClick={() => setIsAddExpenseModalOpen(true)}
+        >
+          <Plus className={modalStyles.fabIcon} />
+        </button>
       </main>
+
+      <AddExpenseModal
+        isOpen={isAddExpenseModalOpen}
+        onClose={() => setIsAddExpenseModalOpen(false)}
+        onExpenseAdded={() => {
+          refetch();
+        }}
+      />
     </div>
   );
 };

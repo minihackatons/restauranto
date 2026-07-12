@@ -14,10 +14,7 @@ export const Sidebar: React.FC = () => {
   };
 
   const isActive = (path: string) => {
-    if (path === '/dashboard' && location.pathname === '/dashboard') return styles.active;
-    if (path === '/inventory' && location.pathname === '/inventory') return styles.active;
-    if (path === '/orders' && location.pathname === '/orders') return styles.active;
-    return '';
+    return location.pathname === path ? styles.active : '';
   };
 
   return (
@@ -40,31 +37,26 @@ export const Sidebar: React.FC = () => {
             <Package className={styles.navIcon} />
             <span className={styles.navLabel}>Pedidos</span>
           </Link>
-          
-          <Link to="/orders" className={styles.fabBtn}>
-            <div className={styles.fabIconWrapper}>
-              <Plus className={styles.fabIcon} />
-            </div>
-            <span className={styles.navLabel + ' ' + styles.mobileHidden}>Adicionar</span>
-          </Link>
-          
-         <div className={styles.navGroup}>
           <Link to="/inventory" className={`${styles.navItem} ${isActive('/inventory')}`}>
             <Boxes className={styles.navIcon} />
-            <span className={styles.navLabel}>Inventário</span>
+            <span className={styles.navLabel}>Estoque</span>
           </Link>
           <Link to="/financeiro" className={`${styles.navItem} ${isActive('/financeiro')}`}>
             <CircleDollarSign className={styles.navIcon} />
-            <span className={styles.navLabel}>Financeiro</span>
+            <span className={styles.navLabel}>Finanças</span>
           </Link>
-        </div>
         </div>
       </nav>
       
       <div className={styles.sidebarFooter}>
+        <Link to="/orders" className={styles.primaryBtn} style={{ textDecoration: 'none' }}>
+          <Plus className={styles.btnIcon} size={20} />
+          <span className={styles.btnText}>Registrar Pedido</span>
+        </Link>
+
         <button onClick={handleLogout} className={styles.logoutBtn}>
-          <LogOut className={styles.navIcon} />
-          <span>Sair</span>
+          <LogOut className={styles.navIcon} size={20} />
+          <span className={styles.navLabel}>Sair</span>
         </button>
       </div>
     </aside>

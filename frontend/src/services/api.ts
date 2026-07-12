@@ -185,5 +185,15 @@ export const api = {
     }
     const res = await response.json();
     return res.data || res;
+  },
+
+  createTransaction: async (data: any) => {
+    const response = await api.post('/finance', data);
+    if (!response.ok) {
+      const err = await response.json().catch(() => null);
+      throw new Error(err?.message || 'Erro ao criar transação');
+    }
+    const res = await response.json();
+    return res.data || res;
   }
 };
