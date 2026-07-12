@@ -186,112 +186,250 @@
   gap: 16px;
 }
 
-.orderCard {
-  background-color: rgba(28, 28, 30, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-top-width: 4px;
-  border-radius: 12px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
+/* Receipt Grid Layout */
+.receiptGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
 }
 
-.orderHeader {
+@media (max-width: 1100px) {
+  .receiptGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .receiptGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.receiptCard {
+  background-color: #1c1c1e;
+  border-radius: 4px;
+  border: 1px solid #2c2c2e;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 24px;
+  color: #fff;
+}
+
+.receiptHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.receiptIdRow {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 16px 16px 8px;
 }
 
-.clientInfo {
+.receiptId {
+  font-size: 0.85rem;
+  color: #8e8e93;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.statusWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.statusIndicator {
   display: flex;
   align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.receiptClient {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: serif;
+}
+
+.receiptItemsSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 24px;
+}
+
+.receiptItemsHeader {
+  border-bottom: 1px solid #2c2c2e;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.receiptItemsHeader span {
+  font-size: 0.8rem;
+  color: #8e8e93;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.receiptItemsList {
+  display: flex;
+  flex-direction: column;
   gap: 12px;
 }
 
-.clientName {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.urgentBadge {
-  background-color: #e53935;
-  color: white;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 12px;
-}
-
-.timeInfo {
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-}
-
-.timeText {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #ffffff;
-}
-
-.dateText {
-  font-size: 0.85rem;
-  color: #a0a0a0;
-}
-
-.itemsList {
-  padding: 0 16px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.orderItemLine {
-  display: flex;
-  gap: 8px;
-  font-size: 0.95rem;
-  color: #e0e0e0;
-}
-
-.itemQty {
-  color: #8e8e93;
-  width: 20px;
-}
-
-.observationBox {
-  margin: 0 16px 16px;
-  background-color: rgba(245, 222, 179, 0.15); /* Tint of yellow */
-  color: #f3d799;
-  padding: 10px 12px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-}
-
-.orderFooter {
-  padding: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+.receiptItemRow {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 }
 
-.totalAmount {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #4cd964; /* iOS Green */
-}
-
-.detailsBtn {
-  background: transparent;
-  border: none;
-  color: #a0a0a0;
-  font-size: 0.9rem;
+.receiptItemLeft {
   display: flex;
+  gap: 12px;
+  flex: 1;
+  padding-right: 12px;
+}
+
+.receiptItemQty {
+  color: #8e8e93;
+  font-weight: 700;
+  font-size: 0.95rem;
+  min-width: 24px;
+}
+
+.receiptItemName {
+  color: #e0e0e0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.receiptItemPrice {
+  color: #a0a0a0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.receiptFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-top: 2px dashed #2c2c2e;
+  padding-top: 20px;
+  margin-bottom: 24px;
+}
+
+.receiptDue {
+  font-size: 0.9rem;
+  color: #8e8e93;
+  font-weight: 600;
+}
+
+.receiptTotal {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.receiptActions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.styledSelect {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  transition: all 0.2s ease;
+}
+
+.styledSelect:focus {
+  outline: none;
+  border-color: #6366f1;
+  background-color: rgba(99, 102, 241, 0.05);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.styledSelect option {
+  color: #000;
+}
+
+.buttonsRow {
+  display: flex;
+  gap: 12px;
+}
+
+.actionBtnPrimaryFlex {
+  flex: 1;
+  background-color: #6366f1;
+  border: none;
+  border-radius: 4px;
+  color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.actionBtnPrimaryFlex:hover {
+  background-color: #4f51c7;
+}
+
+.actionBtnSecondaryFlex {
+  flex: 1;
+  background-color: transparent;
+  border: 1px solid #2c2c2e;
+  border-radius: 4px;
+  color: #a0a0a0;
+  display: flex;
+  justify-content: center;
   align-items: center;
   gap: 4px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 12px;
   cursor: pointer;
+  transition: all 0.2s;
+}
+
+.actionBtnSecondaryFlex:hover {
+  color: #fff;
+  border-color: #3a3a3c;
+  background-color: rgba(255, 255, 255, 0.03);
 }
 
 .emptyState {
@@ -299,7 +437,7 @@
   text-align: center;
   color: #8e8e93;
   font-size: 1.1rem;
-  background-color: rgba(28, 28, 30, 0.4);
+  background-color: #1c1c1e;
   border-radius: 12px;
-  border: 1px dashed rgba(255,255,255,0.1);
+  border: 1px dashed #2c2c2e;
 }

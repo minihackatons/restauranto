@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Req, UseGuards, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, UseGuards, ForbiddenException, Query } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { FinanceService } from './finance.service';
 
@@ -13,6 +13,15 @@ export class FinanceController {
       throw new ForbiddenException('Usuário não possui restaurante vinculado.');
     }
     return this.financeService.getOverview(req.user.restaurantId);
+  }
+
+  @Get('dashboard')
+  async getDashboardData(@Req() req: any, @Query('days-ago') daysAgo?: string) {
+    if (!req.user.restaurantId) {
+      throw new ForbiddenException('Usuário não possui restaurante vinculado.');
+    }
+    const days = daysAgo ? parseInt(daysAgo, 10) : 7;
+    return this.financeService.getDashboardData(req.user.restaurantId, days);
   }
 
   @Post()

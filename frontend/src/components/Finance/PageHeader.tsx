@@ -1,5 +1,4 @@
-import React from 'react';
-import { Bell, Settings } from 'lucide-react';
+import { Bell, Search, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import styles from '../../pages/css/FinancePage.module.css';
 

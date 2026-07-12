@@ -8,6 +8,7 @@ import SettingsPage from './pages/SettingsPage';
 import CreateOrderPage from './pages/CreateOrderPage';
 import OrdersListPage from './pages/OrdersListPage';
 import FinancePage from './pages/FinancePage';
+import OrderDetailsPage from './pages/OrderDetailsPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -55,6 +56,14 @@ function App() {
           element={
             <ProtectedRoute>
               <OrdersListPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pedido/:id"
+          element={
+            <ProtectedRoute>
+              <OrderDetailsPage />
             </ProtectedRoute>
           }
         />

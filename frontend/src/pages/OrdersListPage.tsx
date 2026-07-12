@@ -45,7 +45,7 @@ const OrdersListPage: React.FC = () => {
           </div>
         </header>
         
-        <div className={activeTab === 'calendario' ? styles.contentWide : styles.content}>
+        <div className={styles.contentWide}>
           <div className={styles.segmentedControl}>
             <button 
               className={`${styles.segmentBtn} ${activeTab === 'lista' ? styles.activeSegment : ''}`}

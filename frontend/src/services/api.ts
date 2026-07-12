@@ -178,6 +178,31 @@ export const api = {
     return res.data || res;
   },
 
+  fetchOrderById: async (id: string) => {
+    const response = await api.get(`/orders/${id}`);
+    if (!response.ok) {
+      throw new Error('Erro ao buscar detalhes do pedido');
+    }
+    const res = await response.json();
+    return res.data || res;
+  },
+
+  fetchOrdersDashboard: async (daysAgo: number = 7) => {
+    const response = await api.get(`/orders/dashboard?days-ago=${daysAgo}`);
+    if (!response.ok) {
+      throw new Error('Erro ao buscar dados do dashboard de pedidos');
+    }
+    return response.json();
+  },
+
+  fetchFinanceDashboard: async (daysAgo: number = 7) => {
+    const response = await api.get(`/finance/dashboard?days-ago=${daysAgo}`);
+    if (!response.ok) {
+      throw new Error('Erro ao buscar dados do dashboard de financas');
+    }
+    return response.json();
+  },
+
   fetchFinanceOverview: async () => {
     const response = await api.get('/finance');
     if (!response.ok) {
