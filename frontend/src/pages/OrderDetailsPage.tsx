@@ -87,6 +87,7 @@ const OrderDetailsPage: React.FC = () => {
                 </div>
                 <select 
                   className={styles.statusSelect} 
+                  aria-label="Status do pedido"
                   style={{ 
                     backgroundColor: statusColors[order.status || 'PENDING']?.bg,
                     color: statusColors[order.status || 'PENDING']?.text 

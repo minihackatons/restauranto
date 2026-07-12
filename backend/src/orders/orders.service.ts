@@ -75,13 +75,22 @@ export class OrdersService {
             }
 
             for (const [stockId, data] of stockDeductions.entries()) {
-                const newAmount = Number(data.stockItem.stockAmount) - data.deduction;
+                const lockedStockItem = await transactionalEntityManager.findOne(StockItem, {
+                    where: { id: stockId },
+                    lock: { mode: 'pessimistic_write' }
+                });
+
+                if (!lockedStockItem) {
+                    throw new BadRequestException(`INSUFFICIENT_STOCK: Estoque não encontrado para ${data.stockItem.name}.`);
+                }
+
+                const newAmount = Number(lockedStockItem.stockAmount) - data.deduction;
 
                 if (newAmount < 0 && !dto.forceNegativeStock) {
-                    throw new BadRequestException(`INSUFFICIENT_STOCK: Estoque insuficiente de ${data.stockItem.name}.`);
+                    throw new BadRequestException(`INSUFFICIENT_STOCK: Estoque insuficiente de ${lockedStockItem.name}.`);
                 }
-                data.stockItem.stockAmount = newAmount;
-                await transactionalEntityManager.save(data.stockItem);
+                lockedStockItem.stockAmount = newAmount;
+                await transactionalEntityManager.save(lockedStockItem);
             }
 
             const order = transactionalEntityManager.create(Order, {
@@ -99,7 +108,7 @@ export class OrdersService {
 
             const savedOrder = await transactionalEntityManager.save(order);
             
-            this.financeService.registerOrder(restaurantId, savedOrder.id, savedOrder.totalAmount);
+            await this.financeService.registerOrder(restaurantId, savedOrder.id, savedOrder.totalAmount);
 
             return savedOrder;
         });
@@ -212,6 +221,10 @@ export class OrdersService {
     }
 
     async updateStatus(restaurantId: string, id: string, dto: UpdateOrderStatusDto) {
+        const allowedStatuses = new Set(['PENDING', 'PREPARING', 'READY', 'DELIVERED']);
+        if (!allowedStatuses.has(dto.status)) {
+            throw new BadRequestException('Status inválido');
+        }
         const order = await this.findOne(restaurantId, id);
         if (!order) throw new NotFoundException('Pedido não encontrado');
         order.status = dto.status;

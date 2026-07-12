@@ -114,6 +114,7 @@ export const OrdersListView: React.FC<OrdersListViewProps> = ({ isLoading, error
               <div className={styles.receiptActions}>
                 <select 
                   className={styles.styledSelect} 
+                  aria-label="Status do pedido"
                   value={currentStatus} 
                   onChange={(e) => handleStatusChange(order.id, e.target.value)}
                   disabled={isUpdatingThisOrder}

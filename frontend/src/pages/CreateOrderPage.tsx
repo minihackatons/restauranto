@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ShoppingCart, Plus, Minus, Search, Bell, Settings, PackageOpen, Store, MessageCircle, UtensilsCrossed, CreditCard, QrCode, Banknote } from 'lucide-react';
+import { ShoppingCart, Plus, Minus, Search, Bell, Settings, PackageOpen, Store, MessageCircle, UtensilsCrossed, CreditCard, QrCode, Banknote, AlertCircle, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import { PageHeader } from '../components/PageHeader';
@@ -8,7 +8,6 @@ import { api } from '../services/api';
 import styles from './css/CreateOrderPage.module.css';
 import modalStyles from '../components/css/CreateCategoryModal.module.css';
 import { useToast } from '../components/Toast'
-import { AlertCircle, X } from 'lucide-react';
 
 interface Item {
   id: string;

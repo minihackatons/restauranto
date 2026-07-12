@@ -51,7 +51,7 @@ export class ItemsService {
                     
                     for (const ing of parsedIngredients) {
                         const stockItem = stockItems.find(s => s.id === Number(ing.stockItemId));
-                        if (stockItem && stockItem.stockAmount) {
+                        if (stockItem) {
                             currentCost += (Number(stockItem.cost) * Number(ing.amount));
                         }
                     }
