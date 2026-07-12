@@ -189,13 +189,13 @@ export const api = {
     return response.json();
   },
 
-  fetchOrders: async () => {
-    const response = await api.get('/orders');
+  fetchOrders: async (page: number = 1, includeDelivered: boolean = false) => {
+    const response = await api.get(`/orders?page=${page}&includeDelivered=${includeDelivered}`);
     if (!response.ok) {
       throw new Error('Erro ao buscar pedidos');
     }
     const res = await response.json();
-    return res.data || res;
+    return res;
   },
 
   fetchOrderById: async (id: string) => {

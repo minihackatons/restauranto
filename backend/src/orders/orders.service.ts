@@ -4,7 +4,7 @@ import { CreateOrderDto } from 'src/dtos/order.dto';
 import { OrderItem } from 'src/models/order-item.entity';
 import { Order } from 'src/models/order.entity';
 import { Item } from 'src/models/item.entity';
-import { In, Repository, MoreThanOrEqual, Not } from 'typeorm';
+import { In, Repository, MoreThanOrEqual, Not, FindOptionsWhere } from 'typeorm';
 import { FinanceService } from 'src/finance/finance.service';
 @Injectable()
 export class OrdersService {
@@ -70,16 +70,36 @@ export class OrdersService {
         return savedOrder;
     }
 
-    async findAll(restaurantId: string) {
-        return this.orderRepository.find({
-            where: { restaurant: { id: restaurantId } },
+    async findAll(restaurantId: string, includeDelivered: boolean, page: number = 1, pageSize=30) {
+        const where: FindOptionsWhere<Order> = {
+            restaurant: {
+                id: restaurantId,
+            },
+        };
+
+        if (!includeDelivered) {
+            where.status = Not('DELIVERED');
+        }
+
+        const [orders, total] = await this.orderRepository.findAndCount({
+            where,
             relations: {
                 items: {
                     item: true
                 }
             },
-            order: { createdAt: 'DESC' }
-        });
+            order: { createdAt: 'DESC' },
+            skip: (page - 1) * pageSize,
+            take: pageSize
+        })
+        
+        return {
+            data: orders,
+            total,
+            page,
+            pageSize,
+            totalPages: Math.ceil(total / pageSize)
+        };
     }
 
     async findOne(restaurantId: string, id: string) {
