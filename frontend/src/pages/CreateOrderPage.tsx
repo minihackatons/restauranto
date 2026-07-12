@@ -3,6 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { ShoppingCart, Plus, Minus, Search, Bell, Settings, PackageOpen, Store, MessageCircle, UtensilsCrossed, CreditCard, QrCode, Banknote } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
+import { PageHeader } from '../components/PageHeader';
 import { api } from '../services/api';
 import styles from './css/CreateOrderPage.module.css';
 import { useToast } from '../components/Toast'
@@ -98,17 +99,8 @@ const CreateOrderPage: React.FC = () => {
       <Sidebar />
       <main className={styles.mainContent}>
         
-        {/* HEADER */}
-        <header className={styles.topHeader}>
-          <h1 className={styles.pageTitle}>Registrar Pedido</h1>
-          <div className={styles.headerIcons}>
-            <Bell className={styles.headerIcon} size={24} />
-            <Link to="/settings" style={{ color: 'inherit', display: 'flex' }}>
-              <Settings className={styles.headerIcon} size={24} />
-            </Link>
-          </div>
-        </header>
-
+        <PageHeader title="Registrar Novo Pedido" />
+        
         {/* POS LAYOUT (MENU + CART) */}
         <div className={styles.posLayout}>
           

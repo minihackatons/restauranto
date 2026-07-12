@@ -3,6 +3,7 @@ import { ShoppingBag, DollarSign, TrendingUp, Bell, Settings } from 'lucide-reac
 import { Link } from 'react-router-dom';
 import styles from './css/DashboardPage.module.css';
 import { Sidebar } from '../components/Sidebar';
+import { PageHeader } from '../components/PageHeader';
 import { Card } from '../components/Card';
 import { api } from '../services/api';
 import { FunnelChart } from '../components/dashboard/FunnelChart';
@@ -43,15 +44,7 @@ const DashboardPage: React.FC = () => {
       <Sidebar />
 
       <main className={styles.mainContent}>
-        <header className={styles.topHeader}>
-          <h1>Visão Geral da Semana</h1>
-          <div className={styles.headerIcons}>
-            <Bell className={styles.headerIcon} />
-            <Link to="/settings" style={{ color: 'inherit', display: 'flex' }}>
-              <Settings className={styles.headerIcon} />
-            </Link>
-          </div>
-        </header>
+        <PageHeader title="Visão Geral da Semana" />
         <div className={styles.content}>
           <div className={styles.cardsGrid}>
             <Card 

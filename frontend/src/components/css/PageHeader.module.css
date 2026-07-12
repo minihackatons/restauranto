@@ -1,0 +1,31 @@
+.topHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 32px;
+  border-bottom: 1px solid #1c1c1e;
+  background-color: transparent;
+}
+
+.topHeader h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.headerIcons {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.headerIcon {
+  color: #8e8e93;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.headerIcon:hover {
+  color: #fff;
+}

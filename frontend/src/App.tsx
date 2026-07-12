@@ -9,6 +9,7 @@ import CreateOrderPage from './pages/CreateOrderPage';
 import OrdersListPage from './pages/OrdersListPage';
 import FinancePage from './pages/FinancePage';
 import OrderDetailsPage from './pages/OrderDetailsPage';
+import MarketingPage from './pages/MarketingPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -72,6 +73,14 @@ function App() {
           element={
             <ProtectedRoute>
               <FinancePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/marketing"
+          element={
+            <ProtectedRoute>
+              <MarketingPage />
             </ProtectedRoute>
           }
         />

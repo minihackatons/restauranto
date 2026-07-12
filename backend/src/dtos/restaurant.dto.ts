@@ -22,3 +22,9 @@ export class CreateRestaurantDto {
     @IsOptional()
     phone?: string;
 }
+
+export class LinktreeDto {
+    site?: string;
+    whatsapp?: string;
+    menu?: string;
+}

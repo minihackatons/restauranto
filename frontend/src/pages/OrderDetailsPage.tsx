@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Printer, Clock } from 'lucide-react';
 import { api } from '../services/api';
 import { Sidebar } from '../components/Sidebar';
+import { PageHeader } from '../components/PageHeader';
 import styles from './css/OrderDetailsPage.module.css';
 
 const statusMap: Record<string, string> = {
@@ -44,16 +45,19 @@ const OrderDetailsPage: React.FC = () => {
       <Sidebar />
 
       <main className={styles.mainContent}>
-        <header className={styles.topHeader}>
-          <Link to="/pedidos" className={styles.backBtn}>
-            <ArrowLeft size={20} /> Voltar para Pedidos
-          </Link>
-          <div className={styles.headerIcons}>
+        <PageHeader 
+          showDefaultIcons={false}
+          leftContent={
+            <Link to="/orders-list" className={styles.backBtn}>
+              <ArrowLeft size={20} /> Voltar para Pedidos
+            </Link>
+          }
+          rightContent={
             <button className={styles.actionBtn}>
               <Printer size={18} /> Imprimir Recibo
             </button>
-          </div>
-        </header>
+          }
+        />
 
         <div className={styles.content}>
           {loading && <div className={styles.message}>Carregando...</div>}
