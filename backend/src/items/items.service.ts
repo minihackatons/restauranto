@@ -52,7 +52,7 @@ export class ItemsService {
                     for (const ing of parsedIngredients) {
                         const stockItem = stockItems.find(s => s.id === Number(ing.stockItemId));
                         if (stockItem && stockItem.stockAmount) {
-                            currentCost += ((Number(stockItem.cost) / Number(stockItem.stockAmount)) * Number(ing.amount));
+                            currentCost += (Number(stockItem.cost) * Number(ing.amount));
                         }
                     }
                     currentProfit = Number(itemData.price) - currentCost;

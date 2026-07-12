@@ -64,7 +64,7 @@ export const CreateItemModal: React.FC<CreateItemModalProps> = ({ isOpen, onClos
   const estimatedCost = ingredients.reduce((sum, ing) => {
     const stockItem = stockItems?.find(s => s.id.toString() === ing.stockItemId);
     if (stockItem && ing.amount && stockItem.stockAmount) {
-      return sum + ((Number(stockItem.cost) / Number(stockItem.stockAmount)) * Number(ing.amount));
+      return sum + (Number(stockItem.cost) * Number(ing.amount));
     }
     return sum;
   }, 0);

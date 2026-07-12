@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID, ValidateNested, IsDateString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, IsUUID, ValidateNested, IsDateString, IsBoolean } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PartialType } from '@nestjs/mapped-types';
 
@@ -49,6 +49,10 @@ export class CreateOrderDto {
   @IsOptional()
   @IsDateString()
   deliveryDate?: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  forceNegativeStock?: boolean;
 }
 
 export class UpdateOrderStatusDto {
