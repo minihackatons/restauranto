@@ -51,6 +51,22 @@
   max-width: 800px;
   margin: 0 auto;
   width: 100%;
+  transition: max-width 0.3s ease;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.contentWide {
+  flex: 1;
+  padding: 24px;
+  max-width: none;
+  margin: 0 auto;
+  width: 100%;
+  transition: max-width 0.3s ease;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 /* iOS Segmented Control */
@@ -59,7 +75,9 @@
   background-color: rgba(28, 28, 30, 0.8);
   border-radius: 12px;
   padding: 4px;
-  margin-bottom: 24px;
+  margin: 0 auto 24px auto;
+  max-width: 752px;
+  width: 100%;
 }
 
 .segmentBtn {
