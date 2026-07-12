@@ -51,4 +51,10 @@ export class CreateOrderDto {
   deliveryDate?: Date;
 }
 
+export class UpdateOrderStatusDto {
+  @IsString()
+  @IsNotEmpty()
+  status!: string;
+}
+
 export class UpdateOrderDto extends PartialType(CreateOrderDto) {}

@@ -240,5 +240,26 @@ export const api = {
     }
     const res = await response.json();
     return res.data || res;
+  },
+
+  updateOrderStatus: async (id: string, status: string) => {
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    };
+
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    const response = await fetch(`${API_URL}/orders/${id}/status`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ status }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => null);
+      throw new Error(err?.message || 'Erro ao atualizar status do pedido');
+    }
+    return response.json();
   }
 };

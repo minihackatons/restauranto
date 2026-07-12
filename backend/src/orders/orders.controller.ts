@@ -1,7 +1,7 @@
-import { Controller, ForbiddenException, NotFoundException, Post, Get, Req, UseGuards, Body, Query, Param } from '@nestjs/common';
+import { Controller, ForbiddenException, NotFoundException, Post, Get, Req, UseGuards, Body, Query, Param, Patch } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto } from 'src/dtos/order.dto';
+import { CreateOrderDto, UpdateOrderStatusDto } from 'src/dtos/order.dto';
 
 @Controller('orders')
 @UseGuards(AuthGuard('jwt'))
@@ -44,5 +44,13 @@ export class OrdersController {
       throw new NotFoundException('Pedido não encontrado');
     }
     return order;
+  }
+
+  @Patch(':id/status')
+  async updateOrderStatus(@Req() req: any, @Param('id') id: string, @Body() dto: UpdateOrderStatusDto) {
+    if (!req.user.restaurantId) {
+      throw new ForbiddenException('Usuário não possui restaurante vinculado.');
+    }
+    return this.ordersService.updateStatus(req.user.restaurantId, id, dto);
   }
 }

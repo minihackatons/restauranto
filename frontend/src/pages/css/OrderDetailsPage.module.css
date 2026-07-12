@@ -98,11 +98,34 @@
   font-size: 1.1rem;
 }
 
-.statusBadge {
+.statusSelect {
   padding: 6px 16px;
   border-radius: 20px;
   font-weight: 700;
   font-size: 0.9rem;
+  text-transform: uppercase;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  text-align: center;
+  transition: opacity 0.2s;
+}
+
+.statusSelect:hover {
+  opacity: 0.9;
+}
+
+.statusSelect:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.statusSelect option {
+  background-color: #1c1c1e;
+  color: #fff;
   text-transform: uppercase;
 }
 

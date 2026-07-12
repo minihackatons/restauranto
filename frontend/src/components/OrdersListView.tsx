@@ -1,6 +1,8 @@
 import React from 'react';
 import { ChevronRight, Printer } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { api } from '../services/api';
 import styles from '../pages/css/OrdersListPage.module.css';
 
 interface OrdersListViewProps {
@@ -24,6 +26,22 @@ const statusColors: Record<string, { bg: string, text: string }> = {
 };
 
 export const OrdersListView: React.FC<OrdersListViewProps> = ({ isLoading, error, filteredOrders }) => {
+  const queryClient = useQueryClient();
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string, status: string }) => api.updateOrderStatus(id, status),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+    onError: (err: any) => {
+      alert(err.message || 'Erro ao atualizar status do pedido');
+    }
+  });
+
+  const handleStatusChange = (orderId: string, newStatus: string) => {
+    statusMutation.mutate({ id: orderId, status: newStatus });
+  };
+
   return (
     <div className={styles.ordersList}>
       {isLoading && <div className={styles.emptyState}>Carregando pedidos...</div>}
@@ -45,6 +63,8 @@ export const OrdersListView: React.FC<OrdersListViewProps> = ({ isLoading, error
           const currentStatus = order.status || 'PENDING';
           const colors = statusColors[currentStatus] || statusColors['PENDING'];
           const totalAmount = `R$ ${Number(order.totalAmount).toFixed(2).replace('.', ',')}`;
+          
+          const isUpdatingThisOrder = statusMutation.isPending && statusMutation.variables?.id === order.id;
 
           return (
             <div key={order.id} className={styles.receiptCard}>
@@ -95,7 +115,8 @@ export const OrdersListView: React.FC<OrdersListViewProps> = ({ isLoading, error
                 <select 
                   className={styles.styledSelect} 
                   value={currentStatus} 
-                  onChange={(e) => console.log('Status change not implemented:', e.target.value)}
+                  onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                  disabled={isUpdatingThisOrder}
                 >
                   {Object.entries(statusMap).map(([key, label]) => (
                     <option key={key} value={key}>{label}</option>

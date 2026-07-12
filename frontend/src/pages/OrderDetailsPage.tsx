@@ -26,6 +26,8 @@ const OrderDetailsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+
   useEffect(() => {
     if (id) {
       api.fetchOrderById(id)
@@ -39,6 +41,19 @@ const OrderDetailsPage: React.FC = () => {
         });
     }
   }, [id]);
+
+  const handleStatusChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newStatus = e.target.value;
+    setUpdatingStatus(true);
+    try {
+      await api.updateOrderStatus(order.id, newStatus);
+      setOrder({ ...order, status: newStatus });
+    } catch (err: any) {
+      alert(err.message || 'Erro ao atualizar status');
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -70,12 +85,20 @@ const OrderDetailsPage: React.FC = () => {
                   <h1 className={styles.title}>Pedido #{order.id.slice(0, 8)}</h1>
                   <p className={styles.clientName}>{order.clientName || 'Cliente sem nome'}</p>
                 </div>
-                <div 
-                  className={styles.statusBadge} 
-                  style={{ backgroundColor: statusColors[order.status || 'PENDING']?.bg }}
+                <select 
+                  className={styles.statusSelect} 
+                  style={{ 
+                    backgroundColor: statusColors[order.status || 'PENDING']?.bg,
+                    color: statusColors[order.status || 'PENDING']?.text 
+                  }}
+                  value={order.status || 'PENDING'}
+                  onChange={handleStatusChange}
+                  disabled={updatingStatus}
                 >
-                  {statusMap[order.status || 'PENDING']}
-                </div>
+                  {Object.entries(statusMap).map(([key, label]) => (
+                    <option key={key} value={key}>{label}</option>
+                  ))}
+                </select>
               </div>
 
               <div className={styles.section}>

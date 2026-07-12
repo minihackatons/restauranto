@@ -1,6 +1,6 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateOrderDto } from 'src/dtos/order.dto';
+import { CreateOrderDto, UpdateOrderStatusDto } from 'src/dtos/order.dto';
 import { OrderItem } from 'src/models/order-item.entity';
 import { Order } from 'src/models/order.entity';
 import { Item } from 'src/models/item.entity';
@@ -16,10 +16,10 @@ export class OrdersService {
         @InjectRepository(Item)
         private itemRepository: Repository<Item>,
         private readonly financeService: FinanceService
-    ){}
+    ) { }
 
     // TODO: REFATORAR ESTA BUXA
-    async create(dto: CreateOrderDto, restaurantId: string){
+    async create(dto: CreateOrderDto, restaurantId: string) {
         const itemIds = dto.items.map(item => item.itemId);
 
         const itemsFromDb = await this.itemRepository.find({
@@ -40,7 +40,7 @@ export class OrdersService {
             let orderItem = new OrderItem();
             const realItem = itemsFromDb.find(i => i.id == item.itemId);
 
-            if(!realItem) throw new BadRequestException('Item not found');
+            if (!realItem) throw new BadRequestException('Item not found');
 
             orderItem.item = realItem;
             orderItem.quantity = item.quantity;
@@ -52,7 +52,7 @@ export class OrdersService {
         })
 
         const order = this.orderRepository.create({
-            restaurant: {id: restaurantId},
+            restaurant: { id: restaurantId },
             items: orderItems,
             totalAmount: totalAmount - (dto.discount || 0),
             discount: dto.discount || 0,
@@ -66,7 +66,7 @@ export class OrdersService {
 
         const savedOrder = await this.orderRepository.save(order);
         this.financeService.registerOrder(restaurantId, savedOrder.id, savedOrder.totalAmount);
-        
+
         return savedOrder;
     }
 
@@ -125,7 +125,7 @@ export class OrdersService {
         });
 
         const urgentOrders = await this.orderRepository.find({
-            where: { 
+            where: {
                 restaurant: { id: restaurantId },
                 status: Not('DELIVERED')
             },
@@ -174,5 +174,12 @@ export class OrdersService {
                 orders: totalOrders // real
             }
         };
+    }
+
+    async updateStatus(restaurantId: string, id: string, dto: UpdateOrderStatusDto) {
+        const order = await this.findOne(restaurantId, id);
+        if (!order) throw new NotFoundException('Pedido não encontrado');
+        order.status = dto.status;
+        return this.orderRepository.save(order);
     }
 }
