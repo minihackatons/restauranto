@@ -18,11 +18,11 @@ export class OrdersController {
   }
 
   @Get()
-  async findAll(@Req() req: any) {
+  async findAll(@Req() req: any, @Query('page') page, @Query('includeDelivered') includeDelivered) {
     if (!req.user.restaurantId){
       throw new ForbiddenException('Usuário não possui restaurante vinculado.');
     }
-    return this.ordersService.findAll(req.user.restaurantId);
+    return this.ordersService.findAll(req.user.restaurantId, Boolean(includeDelivered), Number(page));
   }
 
   @Get('dashboard')
