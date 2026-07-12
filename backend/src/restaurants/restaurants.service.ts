@@ -3,8 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Restaurant } from '../models/restaurant.entity';
 import { User } from '../models/user.entity';
-import { CreateRestaurantDto } from '../dtos/restaurant.dto';
+import { CreateRestaurantDto, LinktreeDto } from '../dtos/restaurant.dto';
 import { UpdateRestaurantDto } from '../dtos/update-restaurant.dto';
+import { LinktreeRecord } from 'src/models/linktree.entity';
 
 @Injectable()
 export class RestaurantsService {
@@ -13,6 +14,8 @@ export class RestaurantsService {
     private restaurantRepository: Repository<Restaurant>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(LinktreeRecord)
+    private readonly linktreeRepository: Repository<LinktreeRecord>
   ) {}
 
   async createRestaurant(createRestaurantDto: CreateRestaurantDto, userId: number) {
@@ -52,5 +55,30 @@ export class RestaurantsService {
 
     Object.assign(restaurant, updateRestaurantDto);
     return this.restaurantRepository.save(restaurant);
+  }
+
+  async getLinktreeRecord(restaurantId: string) {
+    const record = await this.linktreeRepository.findOne({
+        where: { restaurant: { id: restaurantId } }
+    });
+    return record || {};
+  }
+
+  async updateLinktreeRecord(dto: LinktreeDto, restaurantId: string){
+    let record = await this.linktreeRepository.findOne({
+        where: {
+            restaurant: {
+                id: restaurantId,
+            },
+        },
+    });
+
+    if (!record) {
+        record = this.linktreeRepository.create({ restaurant: { id: restaurantId } });
+    }
+
+    Object.assign(record, dto);
+
+    return this.linktreeRepository.save(record);
   }
 }

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
+import { PageHeader } from '../components/PageHeader';
 import styles from './css/SettingsPage.module.css';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
-import { Loader2, Bell, Settings } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 
 const SettingsPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -59,15 +59,7 @@ const SettingsPage: React.FC = () => {
       <Sidebar />
 
       <main className={styles.mainContent}>
-        <header className={styles.topHeader}>
-          <h1>Configurações do Restaurante</h1>
-          <div className={styles.headerIcons}>
-            <Bell className={styles.headerIcon} />
-            <Link to="/settings" style={{ color: 'inherit', display: 'flex' }}>
-              <Settings className={styles.headerIcon} />
-            </Link>
-          </div>
-        </header>
+        <PageHeader title="Configurações" />
         
         <div className={styles.content}>
           {isLoading && <div className={styles.loadingState}>Carregando informações...</div>}

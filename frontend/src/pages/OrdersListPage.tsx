@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Search, SlidersHorizontal, Bell, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
+import { PageHeader } from '../components/PageHeader';
 import { OrdersListView } from '../components/OrdersListView';
 import { OrdersCalendarView } from '../components/OrdersCalendarView';
 import { api } from '../services/api';
@@ -35,15 +36,7 @@ const OrdersListPage: React.FC = () => {
       <Sidebar />
 
       <main className={styles.mainContent}>
-        <header className={styles.topHeader}>
-          <h1>Pedidos</h1>
-          <div className={styles.headerIcons}>
-            <Bell className={styles.headerIcon} />
-            <Link to="/settings" style={{ color: 'inherit', display: 'flex' }}>
-              <Settings className={styles.headerIcon} />
-            </Link>
-          </div>
-        </header>
+        <PageHeader title="Pedidos" />
         
         <div className={styles.contentWide}>
           <div className={styles.segmentedControl}>

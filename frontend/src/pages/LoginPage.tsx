@@ -20,7 +20,12 @@ const LoginPage: React.FC = () => {
       const response = await api.post('/auth/login', { email, password });
 
       if (!response.ok) {
-        throw new Error('E-mail ou senha inválidos');
+        const errorData = await response.json().catch(() => null);
+        let errorMsg = 'E-mail ou senha inválidos';
+        if (errorData && errorData.message) {
+            errorMsg = Array.isArray(errorData.message) ? errorData.message[0] : errorData.message;
+        }
+        throw new Error(errorMsg);
       }
 
       const data = await response.json();
@@ -32,7 +37,11 @@ const LoginPage: React.FC = () => {
         throw new Error('Nenhum token recebido');
       }
     } catch (err: any) {
-      setError(err.message || 'Ocorreu um erro durante o login');
+      let finalMessage = err.message || 'Ocorreu um erro durante o login';
+      if (finalMessage.includes('Failed to fetch')) {
+        finalMessage = 'Não foi possível conectar ao servidor. Verifique sua conexão com a internet ou se o servidor está online.';
+      }
+      setError(finalMessage);
     } finally {
       setIsLoading(false);
     }

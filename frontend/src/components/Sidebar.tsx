@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { Home, Package, Plus, Boxes, CircleDollarSign, LogOut } from 'lucide-react';
+import { Home, Package, Plus, Boxes, CircleDollarSign, LogOut, Megaphone } from 'lucide-react';
 import styles from './css/Sidebar.module.css';
 import logoSvg from '../assets/logo.svg';
 
@@ -44,6 +44,14 @@ export const Sidebar: React.FC = () => {
           <Link to="/financeiro" className={`${styles.navItem} ${isActive('/financeiro')}`}>
             <CircleDollarSign className={styles.navIcon} />
             <span className={styles.navLabel}>Finanças</span>
+          </Link>
+        </div>
+
+        <div className={`${styles.navSection} ${styles.advancedSection}`}>
+          <span className={styles.sectionTitle}>Avançado</span>
+          <Link to="/marketing" className={`${styles.navItem} ${isActive('/marketing')}`}>
+            <Megaphone className={styles.navIcon} />
+            <span className={styles.navLabel}>Marketing</span>
           </Link>
         </div>
       </nav>

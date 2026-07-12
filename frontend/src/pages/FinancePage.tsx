@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Sidebar } from '../components/Sidebar';
 import { api } from '../services/api';
-import { PageHeader } from '../components/Finance/PageHeader';
+import { PageHeader } from '../components/PageHeader';
 import { FinanceChart } from '../components/Finance/FinanceChart';
 import { PeriodSummaryCard } from '../components/Finance/PeriodSummaryCard';
 import { RecentTransactionsList, type Transaction } from '../components/Finance/RecentTransactionsList';
@@ -62,7 +62,7 @@ const FinancePage: React.FC = () => {
       <Sidebar />
 
       <main className={styles.mainContent}>
-        <PageHeader />
+        <PageHeader title="Financeiro" />
         
         <div className={styles.content}>
           <div className={styles.rangeSelectorContainer}>

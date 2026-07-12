@@ -141,6 +141,26 @@ export const api = {
     return res.data || res;
   },
 
+  updateLinktree: async (data: any) => {
+    const response = await api.patch("/restaurants/links", data);
+    if (!response.ok) {
+      const err = await response.json().catch(() => null);
+      throw new Error(err?.message || 'Erro ao atualizar o linktree');
+    }
+    const res = await response.json();
+    return res.data || res;
+  },
+
+  fetchLinktree: async () => {
+    const response = await api.get("/restaurants/links");
+    if (!response.ok) {
+      throw new Error('Erro ao buscar o linktree');
+    }
+    const res = await response.json();
+    return res.data || res;
+  },
+
+
   fetchStockItems: async () => {
     const response = await api.get("/stock");
     if (!response.ok) {

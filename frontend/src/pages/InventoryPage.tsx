@@ -7,6 +7,7 @@ import modalStyles from '../components/css/CreateItemModal.module.css';
 import { CreateItemModal } from '../components/CreateItemModal';
 import { CreateStockItemModal } from '../components/CreateStockItemModal';
 import { Sidebar } from '../components/Sidebar';
+import { PageHeader } from '../components/PageHeader';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../services/api';
 
@@ -43,15 +44,7 @@ const InventoryPage: React.FC = () => {
       <Sidebar />
 
       <main className={styles.mainContent}>
-        <header className={styles.topHeader}>
-          <h1>Inventário</h1>
-          <div className={styles.headerIcons}>
-            <Bell className={styles.headerIcon} />
-            <Link to="/settings" style={{ color: 'inherit', display: 'flex' }}>
-              <Settings className={styles.headerIcon} />
-            </Link>
-          </div>
-        </header>
+        <PageHeader title="Estoque" />
         
         <div className={styles.content}>
           <div className={styles.segmentedControl}>

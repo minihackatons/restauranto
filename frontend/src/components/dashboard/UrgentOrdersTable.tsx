@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styles from './css/UrgentOrdersTable.module.css';
 
 interface Order {
@@ -16,6 +16,8 @@ interface UrgentOrdersProps {
 }
 
 export const UrgentOrdersTable: React.FC<UrgentOrdersProps> = ({ orders }) => {
+  const navigate = useNavigate();
+
   return (
     <div className={styles.tableContainer}>
       <div className={styles.header}>
@@ -29,10 +31,17 @@ export const UrgentOrdersTable: React.FC<UrgentOrdersProps> = ({ orders }) => {
           {orders.map((order) => {
             const itemsCount = order.items.reduce((acc, curr) => acc + curr.quantity, 0);
             return (
-              <div key={order.id} className={styles.orderRow}>
+              <div 
+                key={order.id} 
+                className={styles.orderRow} 
+                onClick={() => navigate(`/pedido/${order.id}`)}
+              >
                 <div className={styles.orderInfo}>
                   <span className={styles.client}>{order.clientName || 'Sem nome'}</span>
-                  <span className={styles.details}>{itemsCount} iten(s) • R$ {order.totalAmount}</span>
+                  <span className={styles.details}>
+                    {itemsCount} iten(s) • R$ {order.totalAmount}
+                    {order.deliveryDate && ` • Entrega: ${new Date(order.deliveryDate).toLocaleDateString('pt-BR')} às ${new Date(order.deliveryDate).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}`}
+                  </span>
                 </div>
                 <div className={styles.orderStatus}>
                   <span className={styles.statusBadge}>{order.status}</span>
