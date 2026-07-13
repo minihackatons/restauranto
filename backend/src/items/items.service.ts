@@ -51,7 +51,10 @@ export class ItemsService {
                     
                     for (const ing of parsedIngredients) {
                         const stockItem = stockItems.find(s => s.id === Number(ing.stockItemId));
-                        if (stockItem) {
+                        if (stockItem && stockItem.maxStock && Number(stockItem.maxStock) > 0) {
+                            currentCost += ((Number(stockItem.cost) / Number(stockItem.maxStock)) * Number(ing.amount));
+                        } else if (stockItem) {
+                            // fallback case if maxStock is not set or 0
                             currentCost += (Number(stockItem.cost) * Number(ing.amount));
                         }
                     }

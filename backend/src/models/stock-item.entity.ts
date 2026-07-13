@@ -17,6 +17,9 @@ export class StockItem {
   @Column('decimal', { precision: 10, scale: 2 })
   stockAmount!: number;
 
+  @Column('decimal', { precision: 10, scale: 2, default: 0 })
+  maxStock!: number;
+
   @Column('decimal', { precision: 10, scale: 2 })
   cost!: number;
 

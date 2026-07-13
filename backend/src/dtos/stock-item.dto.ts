@@ -23,6 +23,10 @@ export class CreateStockItemDto {
   stockAmount!: number;
 
   @IsNumber()
+  @Min(0)
+  maxStock!: number;
+
+  @IsNumber()
   @IsPositive()
   cost!: number;
 

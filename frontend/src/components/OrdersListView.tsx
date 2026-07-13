@@ -25,13 +25,19 @@ const statusColors: Record<string, { bg: string, text: string }> = {
   'DELIVERED': { bg: '#8e8e93', text: '#fff' }
 };
 
+import { useToast } from './Toast';
+
 export const OrdersListView: React.FC<OrdersListViewProps> = ({ isLoading, error, filteredOrders }) => {
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
 
   const statusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string, status: string }) => api.updateOrderStatus(id, status),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
+      
+      const statusLabel = statusMap[variables.status] || variables.status;
+      showToast(`Pedido ${variables.id.slice(0, 4)} marcado como ${statusLabel.toLowerCase()}`, 'success');
     },
     onError: (err: any) => {
       alert(err.message || 'Erro ao atualizar status do pedido');

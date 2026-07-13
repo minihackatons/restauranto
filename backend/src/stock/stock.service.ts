@@ -22,6 +22,7 @@ export class StockService {
             measureUnit: dto.measureUnit,
             cost: dto.cost,
             stockAmount: dto.stockAmount,
+            maxStock: dto.maxStock,
             restaurant: { id: restaurantId }
         });
 
