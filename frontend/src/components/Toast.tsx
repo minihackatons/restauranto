@@ -5,7 +5,8 @@ import styles from './css/Toast.module.css';
 export type ToastType = 'success' | 'error' | 'info';
 
 interface ToastContextData {
-  showToast: (text?: string, type?: ToastType) => void;
+  showToast: (text?: string, type?: ToastType, duration?: number) => void;
+  hideToast: () => void;
 }
 
 const ToastContext = createContext<ToastContextData>({} as ToastContextData);
@@ -16,22 +17,33 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   const [toastType, setToastType] = useState<ToastType>('success');
   const [timeoutId, setTimeoutId] = useState<ReturnType<typeof setTimeout> | null>(null);
 
-  const showToast = useCallback((text = 'Success!', type: ToastType = 'success') => {
+  const showToast = useCallback((text = 'Success!', type: ToastType = 'success', duration = 3000) => {
     setToastText(text);
     setToastType(type);
     setIsOpen(true);
     
     if (timeoutId) clearTimeout(timeoutId);
     
-    const id = setTimeout(() => {
-      setIsOpen(false);
-    }, 3000);
-    
-    setTimeoutId(id);
+    if (duration > 0) {
+      const id = setTimeout(() => {
+        setIsOpen(false);
+      }, duration);
+      setTimeoutId(id);
+    } else {
+      setTimeoutId(null);
+    }
+  }, [timeoutId]);
+
+  const hideToast = useCallback(() => {
+    setIsOpen(false);
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      setTimeoutId(null);
+    }
   }, [timeoutId]);
 
   return (
-    <ToastContext.Provider value={{ showToast }}>
+    <ToastContext.Provider value={{ showToast, hideToast }}>
       {children}
       {isOpen && (
         <div className={styles.toastContainer}>
