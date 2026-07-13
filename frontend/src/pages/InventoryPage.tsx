@@ -8,7 +8,8 @@ import { CreateItemModal } from '../components/CreateItemModal';
 import { CreateStockItemModal } from '../components/CreateStockItemModal';
 import { Sidebar } from '../components/Sidebar';
 import { PageHeader } from '../components/PageHeader';
-import { useQuery } from '@tanstack/react-query';
+import { useToast } from '../components/Toast';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { api } from '../services/api';
 
 const InventoryPage: React.FC = () => {
@@ -21,6 +22,45 @@ const InventoryPage: React.FC = () => {
     queryKey: ['menuItems'],
     queryFn: api.fetchMenuItems
   });
+
+  const { showToast, hideToast } = useToast();
+  const [changedVisibilityIds, setChangedVisibilityIds] = useState<string[]>([]);
+
+  const saveVisibilityMutation = useMutation({
+    mutationFn: (ids: string[]) => api.changeItemsVisibility(ids),
+    onSuccess: () => {
+      setChangedVisibilityIds([]);
+      refetch();
+      showToast('Mudanças salvas com sucesso!', 'success', 3000);
+    },
+    onError: (err) => {
+      console.error('[InventoryPage] Erro ao salvar visibilidade:', err);
+      showToast('Erro ao salvar as mudanças', 'error', 3000);
+    }
+  });
+
+
+
+  const handleToggleVisibility = (itemId: string) => {
+    const isRemoving = changedVisibilityIds.includes(itemId);
+    const newIds = isRemoving 
+      ? changedVisibilityIds.filter(id => id !== itemId) 
+      : [...changedVisibilityIds, itemId];
+      
+    setChangedVisibilityIds(newIds);
+    
+    if (newIds.length > 0) {
+      showToast('Você tem mudanças não salvas', 'info', 0);
+    } else {
+      hideToast();
+    }
+  };
+
+  const isItemVisible = (item: any) => {
+    const isPublic = item.visibility === 'public';
+    const isChanged = changedVisibilityIds.includes(item.id);
+    return isChanged ? !isPublic : isPublic;
+  };
 
   const { data: stockData, isLoading: isLoadingStock, error: errorStock, refetch: refetchStock } = useQuery({
     queryKey: ['stockItems'],
@@ -61,6 +101,18 @@ const InventoryPage: React.FC = () => {
               Estoque
             </button>
           </div>
+
+          {activeTab === 'menu' && changedVisibilityIds.length > 0 && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem', marginTop: '1rem' }}>
+              <button 
+                className={styles.primaryBtn}
+                onClick={() => saveVisibilityMutation.mutate(changedVisibilityIds)}
+                disabled={saveVisibilityMutation.isPending}
+              >
+                {saveVisibilityMutation.isPending ? 'Salvando...' : 'Salvar Mudanças'}
+              </button>
+            </div>
+          )}
 
           {activeTab === 'menu' ? (
             <div>
@@ -103,7 +155,11 @@ const InventoryPage: React.FC = () => {
                       </div>
                       <div className={styles.itemActions}>
                         <Edit2 className={styles.actionIcon} />
-                        <div className={`${styles.toggle} ${styles.toggleActive}`}>
+                        <div 
+                          className={`${styles.toggle} ${isItemVisible(item) ? styles.toggleActive : ''}`}
+                          onClick={() => handleToggleVisibility(item.id)}
+                          style={{ cursor: 'pointer' }}
+                        >
                           <div className={styles.toggleKnob}></div>
                         </div>
                       </div>

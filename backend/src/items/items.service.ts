@@ -95,4 +95,20 @@ export class ItemsService {
 
         return {data: items}
     }
+
+    async changeVisibility(ids: string[]){
+        return await this.itemRepository
+            .createQueryBuilder()
+            .update()
+            .set({
+                visibility: () => `
+                CASE
+                    WHEN visibility = 'public' THEN 'private'
+                    ELSE 'public'
+                END
+                `,
+            })
+            .where("id IN (:...ids)", { ids })
+            .execute();
+    }
 }

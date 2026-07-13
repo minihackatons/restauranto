@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, Req, ForbiddenException, UseInterceptors, UploadedFile, Param, Res, NotFoundException, StreamableFile } from "@nestjs/common";
+import { Body, Controller, Get, Post, UseGuards, Req, ForbiddenException, UseInterceptors, UploadedFile, Param, Res, NotFoundException, StreamableFile, Patch } from "@nestjs/common";
 import { CreateItemDto } from "src/dtos/item.dto";
 import { ItemsService } from "./items.service";
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -52,5 +52,11 @@ export class ItemsController {
         }
         
         res.sendFile(filePath);
+    }
+
+    @Patch('visibility')
+    @UseGuards(AuthGuard('jwt'))
+    async changeItemsVisibility(@Body() body: { ids: string[] }){
+        return this.itemsService.changeVisibility(body.ids);
     }
 }

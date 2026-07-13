@@ -25,6 +25,9 @@ export class Item {
   @Column({ nullable: true })
   photoUrl!: string;
 
+  @Column({default: 'private'})
+  visibility!: 'public' | 'private'
+
   @ManyToOne(() => Category, (category) => category.items, { onDelete: 'CASCADE' })
   category!: Category;
 

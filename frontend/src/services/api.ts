@@ -103,6 +103,14 @@ export const api = {
     }));
   },
 
+  changeItemsVisibility: async (ids: string[]) => {
+    const response = await api.patch("/items/visibility", { ids });
+    if (!response.ok) {
+      throw new Error('Erro ao atualizar visibilidade dos itens');
+    }
+    return response.json();
+  },
+
   fetchCategories: async () => {
     const response = await api.get("/categories");
     if (!response.ok) {
