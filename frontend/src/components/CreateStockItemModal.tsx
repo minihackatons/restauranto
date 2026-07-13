@@ -15,7 +15,8 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
   const [stockAmount, setStockAmount] = useState('');
   const [maxStock, setMaxStock] = useState('');
   const [cost, setCost] = useState('');
-  
+  const [expirationDate, setExpirationDate] = useState('');
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -24,32 +25,34 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (!name || !measureUnit || !stockAmount || !cost) {
       setError('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       const payload = {
         name,
         measureUnit,
         stockAmount: Number(stockAmount),
         maxStock: Number(maxStock),
-        cost: Number(cost)
+        cost: Number(cost),
+        ...(expirationDate ? { expirationDate } : {})
       };
 
       await api.createStockItem(payload);
-      
+
       // Reset form
       setName('');
       setMeasureUnit('');
       setStockAmount('');
       setMaxStock('');
       setCost('');
-      
+      setExpirationDate('');
+
       onItemCreated();
       onClose();
     } catch (err: any) {
@@ -77,11 +80,11 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
                 <span>{error}</span>
               </div>
             )}
-            
+
             <div className={styles.formGroup}>
               <label className={styles.label}>Nome do Item</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className={styles.input}
@@ -93,8 +96,8 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
             <div className={styles.gridTwoColumns}>
               <div className={styles.formGroup}>
                 <label className={styles.label}>Unidade de Medida</label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={measureUnit}
                   onChange={(e) => setMeasureUnit(e.target.value)}
                   className={styles.input}
@@ -105,8 +108,8 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
 
               <div className={styles.formGroup}>
                 <label className={styles.label}>Quantidade Atual (Disponível)</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   step="0.01"
                   min="0"
                   value={stockAmount}
@@ -121,8 +124,8 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
             <div className={styles.gridTwoColumns}>
               <div className={styles.formGroup}>
                 <label className={styles.label}>Quantidade Comprada (Tamanho do Pacote)</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   step="0.01"
                   min="0"
                   value={maxStock}
@@ -135,8 +138,8 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
 
               <div className={styles.formGroup}>
                 <label className={styles.label}>Preço Total Pago (R$)</label>
-                <input 
-                  type="number" 
+                <input
+                  type="number"
                   step="0.01"
                   min="0"
                   value={cost}
@@ -146,6 +149,16 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
                   required
                 />
               </div>
+            </div>
+
+            <div className={styles.formGroup} style={{ marginTop: '1rem' }}>
+              <label className={styles.label}>Data de Validade (Opcional)</label>
+              <input
+                type="date"
+                value={expirationDate}
+                onChange={(e) => setExpirationDate(e.target.value)}
+                className={styles.input}
+              />
             </div>
           </div>
 

@@ -23,6 +23,9 @@ export class StockItem {
   @Column('decimal', { precision: 10, scale: 2 })
   cost!: number;
 
+  @Column('date', { nullable: true })
+  expirationDate?: Date;
+
   @ManyToOne(() => Restaurant, restaurant => restaurant.id)
   restaurant!: Restaurant
 
