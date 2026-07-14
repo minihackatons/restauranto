@@ -33,13 +33,13 @@ export const Sidebar: React.FC = () => {
             <Home className={styles.navIcon} />
             <span className={styles.navLabel}>Geral</span>
           </Link>
-          <Link to="/orders-list" className={`${styles.navItem} ${isActive('/orders-list')}`}>
+          <Link to="/pedidos" className={`${styles.navItem} ${isActive('/pedidos')}`}>
             <Package className={styles.navIcon} />
             <span className={styles.navLabel}>Pedidos</span>
           </Link>
-          <Link to="/inventory" className={`${styles.navItem} ${isActive('/inventory')}`}>
+          <Link to="/inventario" className={`${styles.navItem} ${isActive('/inventario')}`}>
             <Boxes className={styles.navIcon} />
-            <span className={styles.navLabel}>Estoque</span>
+            <span className={styles.navLabel}>Inventário</span>
           </Link>
           <Link to="/financeiro" className={`${styles.navItem} ${isActive('/financeiro')}`}>
             <CircleDollarSign className={styles.navIcon} />

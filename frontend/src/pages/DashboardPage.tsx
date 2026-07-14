@@ -39,6 +39,13 @@ const DashboardPage: React.FC = () => {
   const revenue = financeData?.revenue || 0;
   const profit = financeData?.profit || 0;
 
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  };
+
   return (
     <div className={styles.dashboardContainer}>
       <Sidebar />
@@ -56,14 +63,14 @@ const DashboardPage: React.FC = () => {
             />
             <Card 
               title="Faturamento" 
-              value={`R$ ${revenue.toFixed(2).replace('.', ',')}`} 
+              value={formatCurrency(revenue)} 
               icon={<DollarSign />} 
               trend="" 
               trendUp={true} 
             />
             <Card 
               title="Lucro" 
-              value={`R$ ${profit.toFixed(2).replace('.', ',')}`} 
+              value={formatCurrency(profit)} 
               icon={<TrendingUp />} 
               trend="" 
               trendUp={profit >= 0} 

@@ -15,6 +15,17 @@ interface UrgentOrdersProps {
   orders: Order[];
 }
 
+const translateStatus = (status: string) => {
+  const map: Record<string, string> = {
+    'PENDING': 'Pendente',
+    'PREPARING': 'Preparando',
+    'READY': 'Pronto',
+    'DELIVERED': 'Entregue',
+    'CANCELLED': 'Cancelado',
+  };
+  return map[status.toUpperCase()] || status;
+};
+
 export const UrgentOrdersTable: React.FC<UrgentOrdersProps> = ({ orders }) => {
   const navigate = useNavigate();
 
@@ -27,33 +38,51 @@ export const UrgentOrdersTable: React.FC<UrgentOrdersProps> = ({ orders }) => {
       {orders.length === 0 ? (
         <p className={styles.empty}>Nenhum pedido urgente no momento.</p>
       ) : (
-        <div className={styles.list}>
-          {orders.map((order) => {
-            const itemsCount = order.items.reduce((acc, curr) => acc + curr.quantity, 0);
-            return (
-              <div 
-                key={order.id} 
-                className={styles.orderRow} 
-                onClick={() => navigate(`/pedido/${order.id}`)}
-              >
-                <div className={styles.orderInfo}>
-                  <span className={styles.client}>{order.clientName || 'Sem nome'}</span>
-                  <span className={styles.details}>
-                    {itemsCount} iten(s) • R$ {order.totalAmount}
-                    {order.deliveryDate && ` • Entrega: ${new Date(order.deliveryDate).toLocaleDateString('pt-BR')} às ${new Date(order.deliveryDate).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}`}
-                  </span>
-                </div>
-                <div className={styles.orderStatus}>
-                  <span className={styles.statusBadge}>{order.status}</span>
-                </div>
-              </div>
-            );
-          })}
+        <div className={styles.tableWrapper}>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Itens</th>
+                <th>Total</th>
+                <th>Entrega</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => {
+                const itemsCount = order.items?.reduce((acc, curr) => acc + curr.quantity, 0) || 0;
+                return (
+                  <tr 
+                    key={order.id} 
+                    className={styles.orderRow} 
+                    onClick={() => navigate(`/pedido/${order.id}`)}
+                  >
+                    <td className={styles.client}>{order.clientName || 'Sem nome'}</td>
+                    <td className={styles.details}>{itemsCount} iten(s)</td>
+                    <td className={styles.details}>R$ {order.totalAmount}</td>
+                    <td className={styles.details}>
+                      {order.deliveryDate ? (
+                        <>
+                          {new Date(order.deliveryDate).toLocaleDateString('pt-BR')} às {new Date(order.deliveryDate).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}
+                        </>
+                      ) : (
+                        '-'
+                      )}
+                    </td>
+                    <td>
+                      <span className={styles.statusBadge}>{translateStatus(order.status)}</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
       
       <div className={styles.footer}>
-        <Link to="/orders" className={styles.link}>Ver mais pedidos &rarr;</Link>
+        <Link to="/pedidos" className={styles.link}>Ver mais pedidos &rarr;</Link>
       </div>
     </div>
   );

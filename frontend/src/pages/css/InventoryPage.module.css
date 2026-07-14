@@ -15,6 +15,7 @@
   display: flex;
   flex-direction: column;
   background-color: #000;
+  min-height: 0;
 }
 
 .topHeader {
@@ -54,6 +55,9 @@
   max-width: 800px;
   margin: 0 auto;
   width: 100%;
+  overflow-y: auto;
+  min-height: 0;
+  box-sizing: border-box;
 }
 
 .emptyState {
@@ -350,9 +354,35 @@
   }
 
 
-  .mainContent { margin-bottom: 110px; }
+  .mainContent { min-height: 0; }
   
   .content {
+    padding: 16px 16px 110px 16px; /* Space for floating bar */
+  }
+
+  .itemCard {
+    flex-direction: column;
+    align-items: flex-start;
     padding: 16px;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .itemInfo {
+    width: 100%;
+  }
+
+  .itemFinancials {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .itemActions {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
   }
 }

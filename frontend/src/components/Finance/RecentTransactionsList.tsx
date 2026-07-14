@@ -1,4 +1,5 @@
 import styles from '../../pages/css/FinancePage.module.css';
+import { ShoppingBag, Archive, ReceiptText } from 'lucide-react';
 
 export interface Transaction {
   id: number;
@@ -19,11 +20,9 @@ export const RecentTransactionsList = ({ transactions, formatCurrency }: RecentT
 
   const formatDate = (dateString: string) => {
     let dateFromStr = new Date(dateString);
-
-    let localTimeStr = dateFromStr.toLocaleTimeString('pt-BR');
-    let localDateStr = dateFromStr.toLocaleDateString('pt-BR');
-
-    return localDateStr + " " + localTimeStr;
+    let day = dateFromStr.getDate().toString().padStart(2, '0');
+    let month = (dateFromStr.getMonth() + 1).toString().padStart(2, '0');
+    return `${day}/${month}`;
   }
 
   return (
@@ -35,32 +34,45 @@ export const RecentTransactionsList = ({ transactions, formatCurrency }: RecentT
             Nenhuma movimentação encontrada.
           </div>
         ) : (
-          transactions.map(tx => (
-            <div key={tx.id} className={styles.transactionItem}>
-              <div className={styles.transactionLeft}>
-                {(tx.description != null && tx.category == 'OTHER') &&
-                  <span className={styles.transactionName}>{tx.description}</span>
-                }
-                {
-                  (tx.description == null && tx.category == 'ORDER') &&
-                  <div>
-                    <span className={styles.transactionName}>Pedido | {tx.order?.clientName} </span><br></br>
-                    <span className={styles.transactionDate}>#{tx.order?.id}</span>
+          transactions.map(tx => {
+            let Icon = ReceiptText;
+            let title = tx.description;
+            let subtitle = null;
+            let isExpense = tx.type === 'EXPENSE';
+
+            if (tx.category === 'ORDER') {
+              Icon = ShoppingBag;
+              title = `Pedido | ${tx.order?.clientName || 'Sem nome'}`;
+              if (tx.order?.id) {
+                subtitle = `#${tx.order.id.substring(0, 8)}`;
+              }
+            } else if (tx.category === 'STOCK') {
+              Icon = Archive;
+              title = `Estoque | ${tx.description}`;
+            } else {
+              title = `Outros | ${tx.description}`;
+            }
+
+            return (
+              <div key={tx.id} className={styles.transactionItem}>
+                <div className={styles.transactionLeft}>
+                  <div className={styles.iconWrapper}>
+                    <Icon size={24} color="#fff" />
                   </div>
-                  
-                }
-                {
-                  (tx.category == 'STOCK') &&
-                  <span className={styles.transactionName}>Estoque | {tx.description}</span>
-                }
-                
-                <span className={styles.transactionDate}>{formatDate(tx.createdAt)}</span>
+                  <div className={styles.transactionInfo}>
+                    <span className={styles.transactionName}>{title}</span>
+                    {subtitle && <span className={styles.transactionDate}>{subtitle}</span>}
+                  </div>
+                </div>
+                <div className={styles.transactionRight}>
+                  <div className={`${styles.transactionAmount} ${isExpense ? styles.amountOut : styles.amountIn}`}>
+                    {isExpense ? '-' : ''} {formatCurrency(tx.value)}
+                  </div>
+                  <span className={styles.transactionDate}>{formatDate(tx.createdAt)}</span>
+                </div>
               </div>
-              <div className={`${styles.transactionAmount} ${tx.type === 'INCOME' ? styles.amountIn : styles.amountOut}`}>
-                {tx.type === 'INCOME' ? '+' : '-'} {formatCurrency(tx.value)}
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

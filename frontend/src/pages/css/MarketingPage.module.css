@@ -13,6 +13,7 @@
   flex-direction: column;
   overflow-y: auto;
   background-color: #000;
+  min-height: 0;
 }
 
 .topHeader {
@@ -149,4 +150,13 @@
 
 .primaryBtn:hover {
   background-color: #4f46e5;
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+  .contentWide {
+    padding: 20px 16px 110px 16px;
+  }
 }

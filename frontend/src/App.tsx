@@ -29,7 +29,7 @@ function App() {
           }
         />
         <Route
-          path="/inventory"
+          path="/inventario"
           element={
             <ProtectedRoute>
               <InventoryPage />
@@ -53,7 +53,7 @@ function App() {
           }
         />
         <Route
-          path="/orders-list"
+          path="/pedidos"
           element={
             <ProtectedRoute>
               <OrdersListPage />
