@@ -36,11 +36,17 @@ export class ItemsController {
         return this.itemsService.createItem(body, req.user.restaurantId, filename);
     }
 
+    @ApiOperation({summary: 'Gets all public Restaurant items'})
+    @Get('/public')
+    async getPublicItems(){
+        return this.itemsService.getItems(/*isOnlyPublic=*/ true);
+    }
+
     @ApiOperation({summary: 'Gets all Restaurant items'})
     @Get()
     @UseGuards(AuthGuard('jwt'))
     async getItems(){
-        return this.itemsService.getItems();
+        return this.itemsService.getItems(/*isOnlyPublic=*/ false);
     }
 
     @Get(':filename')
