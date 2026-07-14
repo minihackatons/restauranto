@@ -24,7 +24,7 @@ export class StockItem {
   cost!: number;
 
   @Column('date', { nullable: true })
-  expirationDate?: Date;
+  expirationDate?: string;
 
   @ManyToOne(() => Restaurant, restaurant => restaurant.id)
   restaurant!: Restaurant

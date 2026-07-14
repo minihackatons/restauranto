@@ -186,7 +186,7 @@ const InventoryPage: React.FC = () => {
                       </span>
                       {item.expirationDate && (
                         <span className={styles.itemStock} style={{ color: '#eab308' }}>
-                          Validade: {new Date(item.expirationDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                          Validade: {item.expirationDate.substring(0, 10).split('-').reverse().join('/')}
                         </span>
                       )}
                     </div>
