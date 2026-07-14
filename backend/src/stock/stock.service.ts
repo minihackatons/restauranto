@@ -23,6 +23,7 @@ export class StockService {
             cost: dto.cost,
             stockAmount: dto.stockAmount,
             maxStock: dto.maxStock,
+            expirationDate: dto.expirationDate,
             restaurant: { id: restaurantId }
         });
 

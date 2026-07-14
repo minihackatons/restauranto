@@ -184,6 +184,11 @@ const InventoryPage: React.FC = () => {
                       <span className={styles.itemStock}>
                         Em estoque: {item.stockAmount} {item.measureUnit}
                       </span>
+                      {item.expirationDate && (
+                        <span className={styles.itemStock} style={{ color: '#eab308' }}>
+                          Validade: {item.expirationDate.substring(0, 10).split('-').reverse().join('/')}
+                        </span>
+                      )}
                     </div>
                     <div className={styles.itemActions}>
                       <Edit2 className={styles.actionIcon} />

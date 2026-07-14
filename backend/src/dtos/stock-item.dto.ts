@@ -5,6 +5,8 @@ import {
   IsString,
   IsUUID,
   Min,
+  IsOptional,
+  IsDateString
 } from 'class-validator';
 
 import { PartialType } from '@nestjs/mapped-types';
@@ -32,6 +34,10 @@ export class CreateStockItemDto {
 
   @IsUUID()
   restaurantId!: string;
+
+  @IsOptional()
+  @IsDateString()
+  expirationDate?: string;
 }
 
 export class UpdateStockItemDto extends PartialType(CreateStockItemDto) {}
