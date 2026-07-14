@@ -185,7 +185,7 @@ const InventoryPage: React.FC = () => {
                         Em estoque: {item.stockAmount} {item.measureUnit}
                       </span>
                       {item.expirationDate && (
-                        <span className={styles.itemStock} style={{ color: '#eab308', marginTop: '4px' }}>
+                        <span className={styles.itemStock} style={{ color: '#eab308' }}>
                           Validade: {new Date(item.expirationDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                         </span>
                       )}

@@ -37,7 +37,7 @@ export class CreateStockItemDto {
 
   @IsOptional()
   @IsDateString()
-  expirationDate?: Date;
+  expirationDate?: string;
 }
 
 export class UpdateStockItemDto extends PartialType(CreateStockItemDto) {}
