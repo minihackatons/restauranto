@@ -1,16 +1,16 @@
-import { Controller, ForbiddenException, NotFoundException, Post, Get, Req, UseGuards, Body, Query, Param } from '@nestjs/common';
+import { Controller, ForbiddenException, NotFoundException, Post, Get, Req, UseGuards, Body, Query, Param, Patch } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { OrdersService } from './orders.service';
-import { CreateOrderDto } from 'src/dtos/order.dto';
+import { CreateOrderDto, UpdateOrderStatusDto } from 'src/dtos/order.dto';
 
 @Controller('orders')
 @UseGuards(AuthGuard('jwt'))
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   @Post()
-  async createOrder(@Body() dto: CreateOrderDto, @Req() req: any){
-    if (!req.user.restaurantId){
+  async createOrder(@Body() dto: CreateOrderDto, @Req() req: any) {
+    if (!req.user.restaurantId) {
       throw new ForbiddenException('Usuário não possui restaurante vinculado.');
     }
 
@@ -19,15 +19,18 @@ export class OrdersController {
 
   @Get()
   async findAll(@Req() req: any, @Query('page') page, @Query('includeDelivered') includeDelivered) {
-    if (!req.user.restaurantId){
+    if (!req.user.restaurantId) {
       throw new ForbiddenException('Usuário não possui restaurante vinculado.');
     }
-    return this.ordersService.findAll(req.user.restaurantId, Boolean(includeDelivered), Number(page));
+
+    const isIncludeDelivered = includeDelivered === 'true';
+
+    return this.ordersService.findAll(req.user.restaurantId, isIncludeDelivered, Number(page));
   }
 
   @Get('dashboard')
   async getDashboardData(@Req() req: any, @Query('days-ago') daysAgo?: string) {
-    if (!req.user.restaurantId){
+    if (!req.user.restaurantId) {
       throw new ForbiddenException('Usuário não possui restaurante vinculado.');
     }
     const days = daysAgo ? parseInt(daysAgo, 10) : 7;
@@ -44,5 +47,13 @@ export class OrdersController {
       throw new NotFoundException('Pedido não encontrado');
     }
     return order;
+  }
+
+  @Patch(':id/status')
+  async updateOrderStatus(@Req() req: any, @Param('id') id: string, @Body() dto: UpdateOrderStatusDto) {
+    if (!req.user.restaurantId) {
+      throw new ForbiddenException('Usuário não possui restaurante vinculado.');
+    }
+    return this.ordersService.updateStatus(req.user.restaurantId, id, dto);
   }
 }

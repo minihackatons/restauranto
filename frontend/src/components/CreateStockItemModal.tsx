@@ -13,6 +13,7 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
   const [name, setName] = useState('');
   const [measureUnit, setMeasureUnit] = useState('');
   const [stockAmount, setStockAmount] = useState('');
+  const [maxStock, setMaxStock] = useState('');
   const [cost, setCost] = useState('');
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +37,7 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
         name,
         measureUnit,
         stockAmount: Number(stockAmount),
+        maxStock: Number(maxStock),
         cost: Number(cost)
       };
 
@@ -45,6 +47,7 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
       setName('');
       setMeasureUnit('');
       setStockAmount('');
+      setMaxStock('');
       setCost('');
       
       onItemCreated();
@@ -101,7 +104,7 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>Quantidade em Estoque</label>
+                <label className={styles.label}>Quantidade Atual (Disponível)</label>
                 <input 
                   type="number" 
                   step="0.01"
@@ -115,18 +118,34 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
               </div>
             </div>
 
-            <div className={styles.formGroup}>
-              <label className={styles.label}>Custo Total (R$)</label>
-              <input 
-                type="number" 
-                step="0.01"
-                min="0"
-                value={cost}
-                onChange={(e) => setCost(e.target.value)}
-                className={styles.input}
-                placeholder="0.00"
-                required
-              />
+            <div className={styles.gridTwoColumns}>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Quantidade Comprada (Tamanho do Pacote)</label>
+                <input 
+                  type="number" 
+                  step="0.01"
+                  min="0"
+                  value={maxStock}
+                  onChange={(e) => setMaxStock(e.target.value)}
+                  className={styles.input}
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Preço Total Pago (R$)</label>
+                <input 
+                  type="number" 
+                  step="0.01"
+                  min="0"
+                  value={cost}
+                  onChange={(e) => setCost(e.target.value)}
+                  className={styles.input}
+                  placeholder="0.00"
+                  required
+                />
+              </div>
             </div>
           </div>
 

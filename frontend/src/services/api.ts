@@ -248,5 +248,14 @@ export const api = {
     }
     const res = await response.json();
     return res.data || res;
+  },
+
+  updateOrderStatus: async (id: string, status: string) => {
+    const response = await api.patch(`/orders/${id}/status`, { status });
+    if (!response.ok) {
+      const err = await response.json().catch(() => null);
+      throw new Error(err?.message || 'Erro ao atualizar status do pedido');
+    }
+    return response.json();
   }
 };

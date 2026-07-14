@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateOrderDto } from 'src/dtos/order.dto';
+import { CreateOrderDto, UpdateOrderStatusDto } from 'src/dtos/order.dto';
 import { OrderItem } from 'src/models/order-item.entity';
 import { Order } from 'src/models/order.entity';
 import { Item } from 'src/models/item.entity';
-import { In, Repository, MoreThanOrEqual, Not, FindOptionsWhere } from 'typeorm';
+import { StockItem } from 'src/models/stock-item.entity';
+import { In, Repository, MoreThanOrEqual, Not, FindOptionsWhere, DataSource } from 'typeorm';
 import { FinanceService } from 'src/finance/finance.service';
 @Injectable()
 export class OrdersService {
@@ -15,62 +16,105 @@ export class OrdersService {
         private orderRepository: Repository<Order>,
         @InjectRepository(Item)
         private itemRepository: Repository<Item>,
-        private readonly financeService: FinanceService
-    ){}
+        private readonly financeService: FinanceService,
+        private dataSource: DataSource
+    ) { }
 
     // TODO: REFATORAR ESTA BUXA
-    async create(dto: CreateOrderDto, restaurantId: string){
+    async create(dto: CreateOrderDto, restaurantId: string) {
         const itemIds = dto.items.map(item => item.itemId);
 
-        const itemsFromDb = await this.itemRepository.find({
-            where: {
-                id: In(itemIds),
-                category: { restaurant: { id: restaurantId } }
+        return this.dataSource.transaction(async (transactionalEntityManager) => {
+            const itemsFromDb = await transactionalEntityManager.getRepository(Item).find({
+                where: {
+                    id: In(itemIds),
+                    category: { restaurant: { id: restaurantId } }
+                },
+                relations: { ingredients: { stockItem: true } }
+            });
+
+            if (itemsFromDb.length !== itemIds.length) {
+                throw new BadRequestException('Um ou mais itens inválidos ou não pertencente ao restaurante.');
             }
-        })
 
+            let totalAmount = 0;
 
-        if (itemsFromDb.length !== itemIds.length) {
-            throw new BadRequestException('Um ou mais itens inválidos ou não pertencente ao restaurante.');
-        }
+            const orderItems = dto.items.map(item => {
+                let orderItem = new OrderItem();
+                const realItem = itemsFromDb.find(i => i.id == item.itemId);
 
-        let totalAmount = 0;
+                if (!realItem) throw new BadRequestException('Item not found');
 
-        const orderItems = dto.items.map(item => {
-            let orderItem = new OrderItem();
-            const realItem = itemsFromDb.find(i => i.id == item.itemId);
+                orderItem.item = realItem;
+                orderItem.quantity = item.quantity;
+                orderItem.unitPrice = realItem.price;
 
-            if(!realItem) throw new BadRequestException('Item not found');
+                totalAmount += orderItem.unitPrice * orderItem.quantity;
 
-            orderItem.item = realItem;
-            orderItem.quantity = item.quantity;
-            orderItem.unitPrice = realItem.price;
+                return orderItem;
+            });
 
-            totalAmount += orderItem.unitPrice * orderItem.quantity;
+            const stockDeductions = new Map<number, { stockItem: StockItem, deduction: number }>();
 
-            return orderItem;
-        })
+            for (const orderItem of orderItems) {
+                if (!orderItem.item.ingredients) continue;
+                for (const ingredient of orderItem.item.ingredients) {
+                    if (!ingredient.stockItem) continue;
+                    const totalDeduction = ingredient.amount * orderItem.quantity;
 
-        const order = this.orderRepository.create({
-            restaurant: {id: restaurantId},
-            items: orderItems,
-            totalAmount: totalAmount - (dto.discount || 0),
-            discount: dto.discount || 0,
-            clientName: dto.clientName,
-            clientContact: dto.clientContact,
-            deliveryAddress: dto.deliveryAddress,
-            paymentMethod: dto.paymentMethod,
-            channel: dto.channel,
-            deliveryDate: dto.deliveryDate,
-        })
+                    const existingDeduction = stockDeductions.get(ingredient.stockItem.id);
+                    if (existingDeduction) {
+                        existingDeduction.deduction += totalDeduction;
+                    } else {
+                        stockDeductions.set(ingredient.stockItem.id, {
+                            stockItem: ingredient.stockItem,
+                            deduction: totalDeduction
+                        });
+                    }
+                }
+            }
 
-        const savedOrder = await this.orderRepository.save(order);
-        this.financeService.registerOrder(restaurantId, savedOrder.id, savedOrder.totalAmount);
-        
-        return savedOrder;
+            for (const [stockId, data] of stockDeductions.entries()) {
+                const lockedStockItem = await transactionalEntityManager.findOne(StockItem, {
+                    where: { id: stockId },
+                    lock: { mode: 'pessimistic_write' }
+                });
+
+                if (!lockedStockItem) {
+                    throw new BadRequestException(`INSUFFICIENT_STOCK: Estoque não encontrado para ${data.stockItem.name}.`);
+                }
+
+                const newAmount = Number(lockedStockItem.stockAmount) - data.deduction;
+
+                if (newAmount < 0 && !dto.forceNegativeStock) {
+                    throw new BadRequestException(`INSUFFICIENT_STOCK: Estoque insuficiente de ${lockedStockItem.name}.`);
+                }
+                lockedStockItem.stockAmount = newAmount;
+                await transactionalEntityManager.save(lockedStockItem);
+            }
+
+            const order = transactionalEntityManager.create(Order, {
+                restaurant: { id: restaurantId },
+                items: orderItems,
+                totalAmount: totalAmount - (dto.discount || 0),
+                discount: dto.discount || 0,
+                clientName: dto.clientName,
+                clientContact: dto.clientContact,
+                deliveryAddress: dto.deliveryAddress,
+                paymentMethod: dto.paymentMethod,
+                channel: dto.channel,
+                deliveryDate: dto.deliveryDate,
+            });
+
+            const savedOrder = await transactionalEntityManager.save(order);
+            
+            await this.financeService.registerOrder(restaurantId, savedOrder.id, savedOrder.totalAmount);
+
+            return savedOrder;
+        });
     }
 
-    async findAll(restaurantId: string, includeDelivered: boolean, page: number = 1, pageSize=30) {
+    async findAll(restaurantId: string, includeDelivered: boolean, page: number = 1, pageSize = 30) {
         const where: FindOptionsWhere<Order> = {
             restaurant: {
                 id: restaurantId,
@@ -92,7 +136,7 @@ export class OrdersService {
             skip: (page - 1) * pageSize,
             take: pageSize
         })
-        
+
         return {
             data: orders,
             total,
@@ -125,7 +169,7 @@ export class OrdersService {
         });
 
         const urgentOrders = await this.orderRepository.find({
-            where: { 
+            where: {
                 restaurant: { id: restaurantId },
                 status: Not('DELIVERED')
             },
@@ -174,5 +218,16 @@ export class OrdersService {
                 orders: totalOrders // real
             }
         };
+    }
+
+    async updateStatus(restaurantId: string, id: string, dto: UpdateOrderStatusDto) {
+        const allowedStatuses = new Set(['PENDING', 'PREPARING', 'READY', 'DELIVERED']);
+        if (!allowedStatuses.has(dto.status)) {
+            throw new BadRequestException('Status inválido');
+        }
+        const order = await this.findOne(restaurantId, id);
+        if (!order) throw new NotFoundException('Pedido não encontrado');
+        order.status = dto.status;
+        return this.orderRepository.save(order);
     }
 }
