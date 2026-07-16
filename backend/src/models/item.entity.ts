@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
 import { Category } from './category.entity';
 import { ItemIngredient } from './item-ingredients.entity';
+import { Restaurant } from './restaurant.entity';
 
 @Entity()
 export class Item {
@@ -30,6 +31,9 @@ export class Item {
 
   @ManyToOne(() => Category, (category) => category.items, { onDelete: 'CASCADE' })
   category!: Category;
+
+  @ManyToOne(() => Restaurant, restaurant => restaurant.items, { onDelete: 'CASCADE' })
+  restaurant!: Restaurant;
 
   @OneToMany(
     () => ItemIngredient,
