@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from "@nestjs/common";
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
+import { Repository, In, FindOptionsWhere } from 'typeorm';
 import { Item } from '../models/item.entity';
 import { Category } from '../models/category.entity';
 import { ItemIngredient } from '../models/item-ingredients.entity';
@@ -89,8 +89,15 @@ export class ItemsService {
         return savedItem;
     }
 
-    async getItems(){
+    async getItems(isOnlyPublic: boolean = true){
+        const where: FindOptionsWhere<Item> = {};
+
+        if (isOnlyPublic){
+            where.visibility = 'public';
+        }
+        
         const items = await this.itemRepository.find({
+            where,
             relations: {
                 category: true
             }

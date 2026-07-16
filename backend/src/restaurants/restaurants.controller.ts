@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get, Patch, Req, UseGuards, ForbiddenException } from '@nestjs/common';
+import { Body, Controller, Post, Get, Patch, Req, UseGuards, ForbiddenException, Param } from '@nestjs/common';
 import { ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { RestaurantsService } from './restaurants.service';
 import { CreateRestaurantDto, LinktreeDto } from '../dtos/restaurant.dto';
@@ -32,6 +32,7 @@ export class RestaurantsController {
   async updateMyRestaurant(@Body() body: UpdateRestaurantDto, @Req() req: any) {
     return this.restaurantsService.updateMyRestaurant(req.user.restaurantId, body);
   }
+
   @Get('links')
   @UseGuards(AuthGuard('jwt'))
   async getLinktree(@Req() req: any){
@@ -40,6 +41,12 @@ export class RestaurantsController {
     }
     return this.restaurantsService.getLinktreeRecord(req.user.restaurantId);
   }
+
+  @Get('links/public/:restname')
+  async getLinktreePublic(@Param('restname') restname: string){
+    return this.restaurantsService.getLinktreeByName(restname);
+  }
+
   
   @Patch('links')
   @UseGuards(AuthGuard('jwt'))

@@ -64,6 +64,19 @@ export class RestaurantsService {
     return record || {};
   }
 
+  // TODO: create an unique identifier -> name is not unique and used only for MVP
+  async getLinktreeByName(restaurantName: string){
+    const restaurant = await this.restaurantRepository.findOneByOrFail({
+      name: restaurantName
+    })
+
+    const record = await this.linktreeRepository.findOne({
+        where: { restaurant: { id: restaurant.id } }
+    });
+    
+    return {data: record};
+  }
+
   async updateLinktreeRecord(dto: LinktreeDto, restaurantId: string){
     let record = await this.linktreeRepository.findOne({
         where: {
