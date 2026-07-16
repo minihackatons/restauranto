@@ -180,7 +180,7 @@ const InventoryPage: React.FC = () => {
                   <div className={styles.itemCard} key={item.id}>
                     <div className={styles.itemInfo}>
                       <span className={styles.itemName}>{item.name}</span>
-                      <span className={styles.itemPrice}>R$ {(item.maxStock ? item.cost / item.maxStock : item.cost).toFixed(2)} / {item.measureUnit}</span>
+                      <span className={styles.itemPrice}>R$ {Number(item.maxStock > 0 ? item.cost / item.maxStock : item.cost).toFixed(2)} / {item.measureUnit}</span>
                       <span className={styles.itemStock}>
                         Em estoque: {item.stockAmount} {item.measureUnit}
                       </span>

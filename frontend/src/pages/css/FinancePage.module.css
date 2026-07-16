@@ -1,11 +1,12 @@
 /* Base Theme */
 .container {
   display: flex;
-  min-height: 100vh;
-  width: 100%;
+  height: 100vh;
+  width: 100vw;
   background-color: #050506; /* Deep dark theme from ui-ux-pro-max */
   color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
 }
 
 .mainContent {
@@ -14,6 +15,7 @@
   flex-direction: column;
   background-color: #050506;
   overflow-y: auto;
+  min-height: 0;
 }
 
 .topHeader {
@@ -66,6 +68,7 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
+  box-sizing: border-box;
 }
 
 /* Range Selector */
@@ -271,14 +274,40 @@
 
 .transactionLeft {
   display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.transactionInfo {
+  display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 .transactionName {
+  display: flex;
+  align-items: center;
   font-weight: 600;
   font-size: 1rem;
   color: #fff;
+}
+
+.transactionRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
 }
 
 .transactionDate {
@@ -289,7 +318,25 @@
 .transactionAmount {
   font-weight: 600;
   font-size: 1.1rem;
+  white-space: nowrap;
 }
 
 .amountIn { color: #4cd964; }
-.amountOut { color: #ff3b30; }
+.amountOut { color: #fff; }
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+  .content {
+    padding: 20px 16px 110px 16px;
+  }
+  .chartCard, .profitCard, .transactionsSection {
+    padding: 16px;
+  }
+  .rangeSelectorContainer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+}

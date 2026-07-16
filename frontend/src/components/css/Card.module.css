@@ -4,16 +4,34 @@
   border-radius: 16px;
   padding: 24px;
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
 }
 
-.cardHeader {
+.cardIconWrapper {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(99, 102, 241, 0.15);
+  flex-shrink: 0;
+}
+
+.cardIcon {
+  color: #6366f1;
+  width: 28px;
+  height: 28px;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .cardTitle {
@@ -24,16 +42,10 @@
   letter-spacing: 0.5px;
 }
 
-.cardIcon {
-  color: #6366f1;
-  width: 24px;
-  height: 24px;
-}
-
 .cardBody {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 12px;
 }
 
 .cardValue {

@@ -63,7 +63,7 @@ const OrderDetailsPage: React.FC = () => {
         <PageHeader 
           showDefaultIcons={false}
           leftContent={
-            <Link to="/orders-list" className={styles.backBtn}>
+            <Link to="/pedidos" className={styles.backBtn}>
               <ArrowLeft size={20} /> Voltar para Pedidos
             </Link>
           }
