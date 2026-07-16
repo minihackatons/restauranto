@@ -108,7 +108,7 @@ export class OrdersService {
 
             const savedOrder = await transactionalEntityManager.save(order);
             
-            await this.financeService.registerOrder(restaurantId, savedOrder.id, savedOrder.totalAmount);
+            await this.financeService.registerOrder(restaurantId, savedOrder.id, savedOrder.totalAmount, transactionalEntityManager);
 
             return savedOrder;
         });
