@@ -70,7 +70,8 @@ export class ItemsService {
           photoUrl,
           category: { id: categoryId },
           currentCost,
-          currentProfit
+          currentProfit,
+          restaurant: { id: restaurantId }
         });
 
         const savedItem = await this.itemRepository.save(newItem);
@@ -89,11 +90,19 @@ export class ItemsService {
         return savedItem;
     }
 
-    async getItems(isOnlyPublic: boolean = true){
+    async getItems(isOnlyPublic: boolean = true, restaurantId?: string, restaurantName?: string){
         const where: FindOptionsWhere<Item> = {};
 
         if (isOnlyPublic){
             where.visibility = 'public';
+        }
+
+        if (restaurantId){
+            where.restaurant = { id: restaurantId };
+        }
+
+        if (restaurantName){
+            where.restaurant = { name: restaurantName };
         }
         
         const items = await this.itemRepository.find({
@@ -106,7 +115,7 @@ export class ItemsService {
         return {data: items}
     }
 
-    async changeVisibility(ids: string[]){
+    async changeVisibility(ids: string[], restaurantId: string){
         return await this.itemRepository
             .createQueryBuilder()
             .update()
@@ -118,7 +127,7 @@ export class ItemsService {
                 END
                 `,
             })
-            .where("id IN (:...ids)", { ids })
+            .where("id IN (:...ids) AND restaurantId = :restaurantId", { ids, restaurantId })
             .execute();
     }
 }
