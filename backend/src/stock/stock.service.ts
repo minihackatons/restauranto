@@ -12,12 +12,15 @@ export class StockService {
     constructor(
         @InjectRepository(StockItem)
         private stockRepository: Repository<StockItem>,
-        private financeService: FinanceService
+        private financeService: FinanceService,
+        private dataSource: DataSource
     ){}
 
     // TODO: make transactional
     async create(dto: CreateStockItemDto, restaurantId: string){
-        const stockItem = this.stockRepository.create({
+
+        return this.dataSource.transaction(async (manager)=>{
+        const stockItem = manager.create(StockItem, {
             name: dto.name,
             measureUnit: dto.measureUnit,
             cost: dto.cost,
@@ -27,10 +30,11 @@ export class StockService {
             restaurant: { id: restaurantId }
         });
 
-        const savedStockItem = await this.stockRepository.save(stockItem)
-        await this.financeService.registerStock(restaurantId, savedStockItem.name, savedStockItem.cost);
+        const savedStockItem = await manager.save(stockItem)
+        await this.financeService.registerStock(restaurantId, savedStockItem.name, savedStockItem.cost, manager);
 
         return savedStockItem;
+    });
     }
 
     async findAll(restaurantId: string) {
