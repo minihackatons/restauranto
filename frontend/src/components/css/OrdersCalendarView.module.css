@@ -44,6 +44,12 @@
   letter-spacing: -0.5px;
 }
 
+.calendarWrapper :global(.fc-event),
+.calendarWrapper :global(.fc-daygrid-event),
+.calendarWrapper :global(.fc-timegrid-event) {
+  cursor: pointer !important;
+}
+
 /* Adjust cell text colors */
 .calendarWrapper :global(.fc-col-header-cell-cushion),
 .calendarWrapper :global(.fc-daygrid-day-number) {

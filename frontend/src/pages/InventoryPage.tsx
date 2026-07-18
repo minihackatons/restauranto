@@ -67,6 +67,9 @@ const InventoryPage: React.FC = () => {
     queryFn: api.fetchStockItems
   });
 
+  console.log(stockData)
+
+
   useEffect(() => {
     if (error) {
       console.error('[InventoryPage] Falha na comunicação com a API:', error);
@@ -180,7 +183,7 @@ const InventoryPage: React.FC = () => {
                   <div className={styles.itemCard} key={item.id}>
                     <div className={styles.itemInfo}>
                       <span className={styles.itemName}>{item.name}</span>
-                      <span className={styles.itemPrice}>R$ {Number(item.maxStock > 0 ? item.cost / item.maxStock : item.cost).toFixed(2)} / {item.measureUnit}</span>
+                      <span className={styles.itemPrice}>R$ {Number(item.cost).toFixed(2)} / {item.maxStock} {item.measureUnit}</span>
                       <span className={styles.itemStock}>
                         Em estoque: {item.stockAmount} {item.measureUnit}
                       </span>
@@ -189,7 +192,17 @@ const InventoryPage: React.FC = () => {
                           Validade: {item.expirationDate.substring(0, 10).split('-').reverse().join('/')}
                         </span>
                       )}
+
+                      <div className={styles.progressBar}>
+                      <div 
+                        className={styles.progressFill}
+                        style={{ width: `${(item.stockAmount / item.maxStock) * 100}%`}}
+                        >
+                      </div>
                     </div>
+                    
+                    </div>
+
                     <div className={styles.itemActions}>
                       <Edit2 className={styles.actionIcon} />
                     </div>
