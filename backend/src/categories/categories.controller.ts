@@ -10,9 +10,13 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @ApiOperation({ summary: 'Gets all Categories' })
+  @UseGuards(AuthGuard('jwt'))
   @Get()
-  async getCategories() {
-    return this.categoriesService.findAll();
+  async getCategories(@Req() req: any) {
+    if (!req.user.restaurantId) {
+      throw new ForbiddenException('Usuário não possui restaurante vinculado.');
+    }
+    return this.categoriesService.findAll(req.user.restaurantId);
   }
 
   @ApiOperation({ summary: 'Gets a specific Category by id' })

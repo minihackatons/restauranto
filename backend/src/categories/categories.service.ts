@@ -11,7 +11,10 @@ export class CategoriesService {
     private categoryRepository: Repository<Category>,
   ) {}
 
-  async findAll() {
+  async findAll(restaurantId?: string) {
+    if (restaurantId) {
+      return this.categoryRepository.find({ where: { restaurant: { id: restaurantId } } });
+    }
     return this.categoryRepository.find();
   }
 
