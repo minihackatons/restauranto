@@ -28,3 +28,8 @@ export class LinktreeDto {
     whatsapp?: string;
     menu?: string;
 }
+
+export class accessDto {
+    restaurantName!: string;
+    clickType!: 'whatsapp' | 'site' | 'menu' | 'view';
+}

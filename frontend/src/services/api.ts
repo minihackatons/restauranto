@@ -1,4 +1,4 @@
-export const API_URL = 'http://localhost:3000';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 export const api = {
   post: async (endpoint: string, body: any) => {
@@ -257,5 +257,14 @@ export const api = {
       throw new Error(err?.message || 'Erro ao atualizar status do pedido');
     }
     return response.json();
+  },
+
+  fetchAccessStatistics: async () => {
+    const response = await api.get('/restaurants/access');
+    if (!response.ok) {
+      throw new Error('Erro ao buscar estatísticas de acesso');
+    }
+    const res = await response.json();
+    return res.data || res;
   }
 };

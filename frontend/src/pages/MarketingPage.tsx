@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link as LinkIcon, Globe, MessageCircle, BookOpen, Save, Loader2 } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Sidebar } from '../components/Sidebar';
 import { PageHeader } from '../components/PageHeader';
 import { FunnelChart } from '../components/dashboard/FunnelChart';
@@ -15,24 +16,32 @@ const MarketingPage: React.FC = () => {
     whatsapp: '',
     menu: ''
   });
+  const [accessData, setAccessData] = useState<any>(null);
+  const [ordersData, setOrdersData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const loadLinktree = async () => {
+    const loadData = async () => {
       try {
-        const data = await api.fetchLinktree();
+        const [data, accessStats, orders] = await Promise.all([
+          api.fetchLinktree(),
+          api.fetchAccessStatistics(),
+          api.fetchOrdersDashboard(7)
+        ]);
         setFormData({
           site: data.site || '',
           whatsapp: data.whatsapp || '',
           menu: data.menu || ''
         });
+        setAccessData(accessStats);
+        setOrdersData(orders);
       } catch (err) {
-        console.error("Failed to load linktree", err);
+        console.error("Failed to load data", err);
       } finally {
         setIsLoading(false);
       }
     };
-    loadLinktree();
+    loadData();
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,8 +68,43 @@ const MarketingPage: React.FC = () => {
         <PageHeader title="Marketing" />
         <div className={styles.contentWide}>
           
-          <div className={styles.funnelWrapper}>
-            <FunnelChart views={312} clicks={89} orders={42} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '32px' }}>
+            <FunnelChart 
+              views={accessData?.views ?? ordersData?.funnel?.views ?? 0} 
+              clicks={accessData?.clicks ?? ordersData?.funnel?.clicks ?? 0} 
+              orders={ordersData?.totalOrders ?? 0} 
+            />
+            {accessData?.clickTypes && (
+              <div style={{ background: 'rgba(28, 28, 30, 0.6)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '24px', backdropFilter: 'blur(20px)', display: 'flex', flexDirection: 'column', gap: '12px', height: '100%', boxSizing: 'border-box' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: '#fff', margin: 0 }}>Distribuição de Cliques</h3>
+                <div style={{ width: '100%', flex: 1, minHeight: '140px', marginTop: '4px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart 
+                      data={[
+                        { name: 'WhatsApp', value: accessData.clickTypes.whatsapp || 0 },
+                        { name: 'Cardápio', value: accessData.clickTypes.menu || 0 },
+                        { name: 'Site', value: accessData.clickTypes.site || 0 }
+                      ]} 
+                      layout="vertical" 
+                      margin={{ top: 0, right: 30, left: -10, bottom: 0 }}
+                    >
+                      <XAxis type="number" hide />
+                      <YAxis dataKey="name" type="category" stroke="#a1a1aa" axisLine={false} tickLine={false} width={80} tick={{ fill: '#fff', fontSize: 13 }} />
+                      <Tooltip 
+                        cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }} 
+                        contentStyle={{ backgroundColor: '#1c1c1e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }} 
+                        itemStyle={{ color: '#fff' }}
+                      />
+                      <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={24} minPointSize={4} label={{ position: 'right', fill: '#fff', fontSize: 13 }}>
+                        {[0, 1, 2].map((index) => (
+                          <Cell key={`cell-${index}`} fill="#6366f1" />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
           </div>
 
           {isLoading ? (
