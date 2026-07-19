@@ -12,6 +12,25 @@ import { useToast } from '../components/Toast';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { api } from '../services/api';
 
+const DAYS_TO_ALERT = 7;
+
+const getExpirationStatus = (expirationDateString: string) => {
+  if (!expirationDateString) return 'none';
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const expDate = new Date(expirationDateString);
+  expDate.setHours(0, 0, 0, 0);
+
+  const diffTime = expDate.getTime() - today.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) return 'expired';
+  if (diffDays <= DAYS_TO_ALERT) return 'warning';
+  return 'good';
+};
+
 const InventoryPage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'menu' | 'estoque'>('menu');
@@ -43,12 +62,12 @@ const InventoryPage: React.FC = () => {
 
   const handleToggleVisibility = (itemId: string) => {
     const isRemoving = changedVisibilityIds.includes(itemId);
-    const newIds = isRemoving 
-      ? changedVisibilityIds.filter(id => id !== itemId) 
+    const newIds = isRemoving
+      ? changedVisibilityIds.filter(id => id !== itemId)
       : [...changedVisibilityIds, itemId];
-      
+
     setChangedVisibilityIds(newIds);
-    
+
     if (newIds.length > 0) {
       showToast('Você tem mudanças não salvas', 'info', 0);
     } else {
@@ -85,16 +104,16 @@ const InventoryPage: React.FC = () => {
 
       <main className={styles.mainContent}>
         <PageHeader title="Estoque" />
-        
+
         <div className={styles.content}>
           <div className={styles.segmentedControl}>
-            <button 
+            <button
               className={`${styles.segmentBtn} ${activeTab === 'menu' ? styles.activeSegment : ''}`}
               onClick={() => setActiveTab('menu')}
             >
               Itens do Menu
             </button>
-            <button 
+            <button
               className={`${styles.segmentBtn} ${activeTab === 'estoque' ? styles.activeSegment : ''}`}
               onClick={() => setActiveTab('estoque')}
             >
@@ -104,7 +123,7 @@ const InventoryPage: React.FC = () => {
 
           {activeTab === 'menu' && changedVisibilityIds.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem', marginTop: '1rem' }}>
-              <button 
+              <button
                 className={styles.primaryBtn}
                 onClick={() => saveVisibilityMutation.mutate(changedVisibilityIds)}
                 disabled={saveVisibilityMutation.isPending}
@@ -117,7 +136,7 @@ const InventoryPage: React.FC = () => {
           {activeTab === 'menu' ? (
             <div>
               {!isLoading && !error && data?.map((category: any) => (
-                  <div className={styles.categoryGroup} key={category.categoryName}>
+                <div className={styles.categoryGroup} key={category.categoryName}>
                   <div className={styles.categoryHeader}>
                     <h3>{category.categoryName}</h3>
                     <ChevronDown className={styles.chevronIcon} />
@@ -127,9 +146,9 @@ const InventoryPage: React.FC = () => {
                     <div className={styles.itemCard} key={item.id}>
                       <div>
                         {item.photoUrl ? (
-                          <img 
-                            src={`http://localhost:3000/items/${item.photoUrl.split(/[\\/]/).pop()}`} 
-                            alt={item.name} 
+                          <img
+                            src={`http://localhost:3000/items/${item.photoUrl.split(/[\\/]/).pop()}`}
+                            alt={item.name}
                             className={styles.itemImagePlaceholder}
                             style={{ objectFit: 'cover' }}
                           />
@@ -155,7 +174,7 @@ const InventoryPage: React.FC = () => {
                       </div>
                       <div className={styles.itemActions}>
                         <Edit2 className={styles.actionIcon} />
-                        <div 
+                        <div
                           className={`${styles.toggle} ${isItemVisible(item) ? styles.toggleActive : ''}`}
                           onClick={() => handleToggleVisibility(item.id)}
                           style={{ cursor: 'pointer' }}
@@ -165,16 +184,31 @@ const InventoryPage: React.FC = () => {
                       </div>
                     </div>
                   ))}
-                  </div>
+                </div>
               ))}
-              
+
               {isLoading && <div className={styles.emptyState}><p>Carregando as opções do menu...</p></div>}
-              
+
               {error && <div className={styles.emptyState}><p>Erro ao carregar os itens. Tente novamente.</p></div>}
-              
+
             </div>
           ) : (
             <div>
+              {activeTab === 'estoque' && stockData && (() => {
+                const expiringItems = stockData.filter((item: any) =>
+                  item.expirationDate && ['expired', 'warning'].includes(getExpirationStatus(item.expirationDate))
+                );
+
+                if (expiringItems.length > 0) {
+                  return (
+                    <div style={{ backgroundColor: '#fee2e2', color: '#991b1b', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>
+                      <strong>Atenção:</strong> Você tem {expiringItems.length} item(ns) vencido(s) ou próximos do vencimento no estoque.
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+
               {!isLoadingStock && !errorStock && stockData && stockData.length > 0 ? (
                 stockData.map((item: any) => (
                   <div className={styles.itemCard} key={item.id}>
@@ -184,11 +218,27 @@ const InventoryPage: React.FC = () => {
                       <span className={styles.itemStock}>
                         Em estoque: {item.stockAmount} {item.measureUnit}
                       </span>
-                      {item.expirationDate && (
-                        <span className={styles.itemStock} style={{ color: '#eab308' }}>
-                          Validade: {item.expirationDate.substring(0, 10).split('-').reverse().join('/')}
-                        </span>
-                      )}
+                      {item.expirationDate && (() => {
+                        const status = getExpirationStatus(item.expirationDate);
+
+                        let color = '#a1a1aa';
+                        let text = '';
+
+                        if (status === 'expired') {
+                          color = '#ef4444';
+                          text = ' (Vencido!)';
+                        } else if (status === 'warning') {
+                          color = '#f97316';
+                          text = ' (Vence em breve!)';
+                        }
+
+                        return (
+                          <span className={styles.itemStock} style={{ color, fontWeight: status !== 'good' ? 'bold' : 'normal' }}>
+                            Validade: {item.expirationDate.substring(0, 10).split('-').reverse().join('/')}
+                            {text}
+                          </span>
+                        );
+                      })()}
                     </div>
                     <div className={styles.itemActions}>
                       <Edit2 className={styles.actionIcon} />
@@ -204,20 +254,20 @@ const InventoryPage: React.FC = () => {
           )}
         </div>
 
-        <button 
+        <button
           className={modalStyles.inventoryFab}
           onClick={() => activeTab === 'menu' ? setIsModalOpen(true) : setIsStockModalOpen(true)}
         >
           <Plus className={modalStyles.fabIcon} />
         </button>
 
-        <CreateItemModal 
-          isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
+        <CreateItemModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
           stockItems={stockData || []}
           onItemCreated={() => {
             refetch();
-          }} 
+          }}
         />
 
         <CreateStockItemModal
