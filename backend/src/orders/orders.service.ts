@@ -213,9 +213,9 @@ export class OrdersService {
             urgentOrders,
             topItems,
             funnel: {
-                views: 1250, // mock
-                clicks: 430, // mock
-                orders: totalOrders // real
+                views: 0,
+                clicks: 0,
+                orders: totalOrders
             }
         };
     }

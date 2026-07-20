@@ -79,8 +79,8 @@ const DashboardPage: React.FC = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginTop: '32px' }}>
             <FunnelChart 
-              views={ordersData?.funnel?.views || 1250} 
-              clicks={ordersData?.funnel?.clicks || 430} 
+              views={ordersData?.funnel?.views || 0} 
+              clicks={ordersData?.funnel?.clicks || 0} 
               orders={totalOrders} 
             />
             <TopItemsDoughnut data={ordersData?.topItems || []} />

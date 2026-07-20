@@ -116,7 +116,10 @@ const InventoryPage: React.FC = () => {
 
           {activeTab === 'menu' ? (
             <div>
-              {!isLoading && !error && data?.map((category: any) => (
+              {!isLoading && !error && (!data || data.length === 0 ? (
+                <div className={styles.emptyState}><p>Não há itens no cardápio</p></div>
+              ) : (
+                data.map((category: any) => (
                   <div className={styles.categoryGroup} key={category.categoryName}>
                   <div className={styles.categoryHeader}>
                     <h3>{category.categoryName}</h3>
@@ -128,7 +131,7 @@ const InventoryPage: React.FC = () => {
                       <div>
                         {item.photoUrl ? (
                           <img 
-                            src={`http://localhost:3000/items/${item.photoUrl.split(/[\\/]/).pop()}`} 
+                            src={item.photoUrl} 
                             alt={item.name} 
                             className={styles.itemImagePlaceholder}
                             style={{ objectFit: 'cover' }}
@@ -166,6 +169,7 @@ const InventoryPage: React.FC = () => {
                     </div>
                   ))}
                   </div>
+                ))
               ))}
               
               {isLoading && <div className={styles.emptyState}><p>Carregando as opções do menu...</p></div>}
