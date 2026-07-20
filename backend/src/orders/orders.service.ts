@@ -206,7 +206,7 @@ export class OrdersService {
 
         const topItems = Object.values(itemsCount)
             .sort((a, b) => b.count - a.count)
-            .slice(0, 5);
+            .slice(0, 3);
 
         return {
             totalOrders,

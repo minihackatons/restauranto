@@ -4,6 +4,7 @@ import { Order } from './order.entity';
 import { User } from './user.entity';
 import { OrderItem } from './order-item.entity';
 import { Item } from './item.entity';
+import { RestaurantStatistics } from './statistics.entity';
 
 @Entity()
 export class Restaurant {
@@ -36,6 +37,12 @@ export class Restaurant {
 
   @OneToMany(() => Item, (item) => item.restaurant, { cascade: true })
   items!: Item[];
+
+  @OneToMany(
+    () => RestaurantStatistics,
+    statistics => statistics.restaurant
+  )
+  statistics!: RestaurantStatistics[];
 
   @CreateDateColumn()
   createdAt!: Date;
