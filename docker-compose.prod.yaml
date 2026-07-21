@@ -13,7 +13,7 @@ services:
   api:
     build:
       context: ./backend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     container_name: nestjs_api
     ports:
       - "80:3000"
