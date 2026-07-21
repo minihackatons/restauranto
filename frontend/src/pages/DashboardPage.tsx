@@ -13,17 +13,20 @@ import { UrgentOrdersTable } from '../components/dashboard/UrgentOrdersTable';
 const DashboardPage: React.FC = () => {
   const [ordersData, setOrdersData] = useState<any>(null);
   const [financeData, setFinanceData] = useState<any>(null);
+  const [accessData, setAccessData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadDashboard = async () => {
       try {
-        const [orders, finance] = await Promise.all([
+        const [orders, finance, accessStats] = await Promise.all([
           api.fetchOrdersDashboard(7),
-          api.fetchFinanceDashboard(7)
+          api.fetchFinanceDashboard(7),
+          api.fetchAccessStatistics()
         ]);
         setOrdersData(orders);
         setFinanceData(finance);
+        setAccessData(accessStats);
       } catch (err) {
         console.error('Error fetching dashboard', err);
       } finally {

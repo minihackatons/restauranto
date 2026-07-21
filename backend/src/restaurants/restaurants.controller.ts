@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Get, Patch, Req, UseGuards, ForbiddenException, Param } from '@nestjs/common';
+import { Body, Controller, Post, Get, Patch, Req, UseGuards, ForbiddenException, Param, Query } from '@nestjs/common';
 import { ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { RestaurantsService } from './restaurants.service';
 import { CreateRestaurantDto, LinktreeDto } from '../dtos/restaurant.dto';
 import { UpdateRestaurantDto } from '../dtos/update-restaurant.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { accessDto } from 'src/dtos/restaurant.dto';
 
 @Controller('restaurants')
 export class RestaurantsController {
@@ -55,5 +56,20 @@ export class RestaurantsController {
       throw new ForbiddenException('Usuário não associado a um restaurante. Faça login novamente.')
     }
     return this.restaurantsService.updateLinktreeRecord(body, req.user.restaurantId);
+  }
+
+  @Post('access')
+  async saveAccessStatistics(@Body() body: accessDto){
+    return this.restaurantsService.saveAccessRestaurantStatistic(body);
+  }
+
+  @Get('access')
+  @UseGuards(AuthGuard('jwt'))
+  async getStatisticsData (@Req() req: any){
+    if (!req.user.restaurantId){
+      throw new ForbiddenException('Usuário não associado a um restaurante. Faça login novamente.')
+    }
+
+    return this.restaurantsService.getAccessStatistics(req.user.restaurantId);
   }
 }
