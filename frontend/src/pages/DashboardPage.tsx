@@ -12,7 +12,7 @@ import { UrgentOrdersTable } from '../components/dashboard/UrgentOrdersTable';
 const DashboardPage: React.FC = () => {
   const [ordersData, setOrdersData] = useState<any>(null);
   const [financeData, setFinanceData] = useState<any>(null);
-  const [_accessData, setAccessData] = useState<any>(null);
+  const [accessData, setAccessData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -81,8 +81,8 @@ const DashboardPage: React.FC = () => {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginTop: '32px' }}>
             <FunnelChart 
-              views={ordersData?.funnel?.views || 0} 
-              clicks={ordersData?.funnel?.clicks || 0} 
+              views={accessData?.views || 0} 
+              clicks={accessData?.clicks || 0} 
               orders={totalOrders} 
             />
             <TopItemsDoughnut data={ordersData?.topItems || []} />
