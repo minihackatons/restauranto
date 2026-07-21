@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ShoppingBag, DollarSign, TrendingUp, Bell, Settings } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ShoppingBag, DollarSign, TrendingUp } from 'lucide-react';
 import styles from './css/DashboardPage.module.css';
 import { Sidebar } from '../components/Sidebar';
 import { PageHeader } from '../components/PageHeader';

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Search, SlidersHorizontal, Bell, Settings } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Search, SlidersHorizontal } from 'lucide-react';
 import { Sidebar } from '../components/Sidebar';
 import { PageHeader } from '../components/PageHeader';
 import { OrdersListView } from '../components/OrdersListView';

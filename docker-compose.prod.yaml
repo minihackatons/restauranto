@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    env_file:
+      - ./backend/.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - restauranto_net
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nestjs_api
+    ports:
+      - "80:3000"
+    depends_on:
+      - db
+    env_file:
+      - ./backend/.env
+    networks:
+      - restauranto_net
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  restauranto_net:
+    driver: bridge

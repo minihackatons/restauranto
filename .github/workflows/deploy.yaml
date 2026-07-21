@@ -21,4 +21,4 @@ jobs:
           script: |
             cd restauranto
             git pull origin main
-            sudo docker compose up -d --build
+            sudo docker compose -f compose.prod.yaml up -d --build

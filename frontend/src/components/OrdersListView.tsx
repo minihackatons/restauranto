@@ -33,7 +33,7 @@ export const OrdersListView: React.FC<OrdersListViewProps> = ({ isLoading, error
 
   const statusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string, status: string }) => api.updateOrderStatus(id, status),
-    onSuccess: (data, variables) => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       
       const statusLabel = statusMap[variables.status] || variables.status;
@@ -63,7 +63,7 @@ export const OrdersListView: React.FC<OrdersListViewProps> = ({ isLoading, error
           const deliveryDateStr = order.deliveryDate ? order.deliveryDate : order.createdAt;
           const deliveryDate = new Date(deliveryDateStr);
           
-          const formattedTime = deliveryDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
           const formattedDate = deliveryDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
           
           const currentStatus = order.status || 'PENDING';
