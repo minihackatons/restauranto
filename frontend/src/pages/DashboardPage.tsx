@@ -12,7 +12,7 @@ import { UrgentOrdersTable } from '../components/dashboard/UrgentOrdersTable';
 const DashboardPage: React.FC = () => {
   const [ordersData, setOrdersData] = useState<any>(null);
   const [financeData, setFinanceData] = useState<any>(null);
-  const [accessData, setAccessData] = useState<any>(null);
+  const [_accessData, setAccessData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
