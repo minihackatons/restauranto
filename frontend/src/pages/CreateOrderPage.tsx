@@ -151,7 +151,7 @@ const CreateOrderPage: React.FC = () => {
                             <div key={item.id} className={styles.itemCard}>
                               {item.photoUrl ? (
                                 <img
-                                  src={`http://localhost:3000/items/${item.photoUrl.split(/[\\/]/).pop()}`}
+                                  src={item.photoUrl}
                                   alt={item.name}
                                   className={styles.itemImage}
                                 />

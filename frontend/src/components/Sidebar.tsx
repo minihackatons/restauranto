@@ -56,12 +56,14 @@ export const Sidebar: React.FC = () => {
         </div>
       </nav>
       
-      <div className={styles.sidebarFooter}>
+      <div className={styles.actionSection}>
         <Link to="/orders" className={styles.primaryBtn} style={{ textDecoration: 'none' }}>
           <Plus className={styles.btnIcon} size={20} />
           <span className={styles.btnText}>Registrar Pedido</span>
         </Link>
+      </div>
 
+      <div className={styles.sidebarFooter}>
         <button onClick={handleLogout} className={styles.logoutBtn}>
           <LogOut className={styles.navIcon} size={20} />
           <span className={styles.navLabel}>Sair</span>

@@ -137,6 +137,10 @@
   color: #8e8e93;
 }
 
+.actionSection {
+  padding: 0 16px 16px 16px;
+}
+
 .sidebarFooter {
   padding: 16px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
@@ -226,6 +230,10 @@
 
   .sidebarHeader, .sectionTitle {
     display: none;
+  }
+
+  .actionSection {
+    padding: 0;
   }
 
   .nav {

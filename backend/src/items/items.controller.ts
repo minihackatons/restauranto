@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards, Req, ForbiddenException, UseInterceptors, UploadedFile, Param, Res, NotFoundException, StreamableFile, Patch, Query } from "@nestjs/common";
+import { Body, Controller, Get, Post, UseGuards, Req, ForbiddenException, UseInterceptors, UploadedFile, Param, Res, NotFoundException, StreamableFile, Patch, Query, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator } from "@nestjs/common";
 import { CreateItemDto } from "src/dtos/item.dto";
 import { ItemsService } from "./items.service";
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -9,31 +9,41 @@ import { join } from "path";
 import * as fs from 'fs';
 
 import { AuthGuard } from '@nestjs/passport';
+import { BucketService } from "src/shared/bucket.service";
 
 @Controller("/items")
 export class ItemsController {
-    constructor(private readonly itemsService: ItemsService) { }
+    constructor(private readonly itemsService: ItemsService, private readonly uploadService: BucketService) { }
 
     @ApiOperation({ summary: 'Creates a new Item for the restaurant' })
     @ApiConsumes('multipart/form-data')
     @UseGuards(AuthGuard('jwt'))
-    @UseInterceptors(FileInterceptor('photo', multerOptions))
+    @UseInterceptors(FileInterceptor('photo'))
     @Post()
     async createItem(
         @Body() body: CreateItemDto,
         @Req() req: any,
-        @UploadedFile() photo?: Express.Multer.File
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [
+                new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }),
+                new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+                ],
+                fileIsRequired: false,
+            }),
+        ) photo?: Express.Multer.File,
     ) {
         if (!req.user.restaurantId) {
             throw new ForbiddenException('Usuário não possui restaurante vinculado.');
         }
 
-        let filename = photo?.filename;
-        if (!filename && photo?.path) {
-            filename = photo.path.replace(/^.*[\\\/]/, '');
+        let imageUrl: string | undefined;
+
+        if (photo) {
+        imageUrl = await this.uploadService.uploadImage(photo);
         }
 
-        return this.itemsService.createItem(body, req.user.restaurantId, filename);
+        return this.itemsService.createItem(body, req.user.restaurantId, imageUrl);
     }
 
     @ApiOperation({ summary: 'Gets all public Restaurant items' })
@@ -47,17 +57,6 @@ export class ItemsController {
     @UseGuards(AuthGuard('jwt'))
     async getItems(@Req() req: any) {
         return this.itemsService.getItems(/*isOnlyPublic=*/ false, req.user.restaurantId);
-    }
-
-    @Get(':filename')
-    getPhotos(@Param('filename') filename: string, @Res() res: Response) {
-        const filePath = join(process.cwd(), 'uploads', filename);
-
-        if (!fs.existsSync(filePath)) {
-            throw new NotFoundException('Image not found');
-        }
-
-        res.sendFile(filePath);
     }
 
     @Patch('visibility')
