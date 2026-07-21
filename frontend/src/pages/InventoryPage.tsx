@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { Bell, Settings, Edit2, ChevronDown, Plus } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Edit2, ChevronDown, Plus } from 'lucide-react';
 import styles from './css/InventoryPage.module.css';
 import modalStyles from '../components/css/CreateItemModal.module.css';
 import { CreateItemModal } from '../components/CreateItemModal';

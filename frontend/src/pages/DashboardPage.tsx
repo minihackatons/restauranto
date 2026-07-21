@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ShoppingBag, DollarSign, TrendingUp, Bell, Settings } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ShoppingBag, DollarSign, TrendingUp } from 'lucide-react';
 import styles from './css/DashboardPage.module.css';
 import { Sidebar } from '../components/Sidebar';
 import { PageHeader } from '../components/PageHeader';
@@ -13,7 +12,7 @@ import { UrgentOrdersTable } from '../components/dashboard/UrgentOrdersTable';
 const DashboardPage: React.FC = () => {
   const [ordersData, setOrdersData] = useState<any>(null);
   const [financeData, setFinanceData] = useState<any>(null);
-  const [accessData, setAccessData] = useState<any>(null);
+  const [_accessData, setAccessData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

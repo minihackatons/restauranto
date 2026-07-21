@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link as LinkIcon, Globe, MessageCircle, BookOpen, Save, Loader2 } from 'lucide-react';
+import { Globe, MessageCircle, BookOpen, Save, Loader2 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { Sidebar } from '../components/Sidebar';
 import { PageHeader } from '../components/PageHeader';
