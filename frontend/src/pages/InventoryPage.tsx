@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-import { Bell, Settings, Edit2, ChevronDown, Plus } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Edit2, ChevronDown, Plus } from 'lucide-react';
 import styles from './css/InventoryPage.module.css';
 import modalStyles from '../components/css/CreateItemModal.module.css';
 import { CreateItemModal } from '../components/CreateItemModal';
@@ -9,30 +8,12 @@ import { CreateStockItemModal } from '../components/CreateStockItemModal';
 import { Sidebar } from '../components/Sidebar';
 import { PageHeader } from '../components/PageHeader';
 import { useToast } from '../components/Toast';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
-
-const DAYS_TO_ALERT = 7;
-
-const getExpirationStatus = (expirationDateString: string) => {
-  if (!expirationDateString) return 'none';
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const expDate = new Date(expirationDateString);
-  expDate.setHours(0, 0, 0, 0);
-
-  const diffTime = expDate.getTime() - today.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  if (diffDays < 0) return 'expired';
-  if (diffDays <= DAYS_TO_ALERT) return 'warning';
-  return 'good';
-};
+import { StockAlerts } from '../components/StockAlerts';
 
 const InventoryPage: React.FC = () => {
-
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'menu' | 'estoque'>('menu');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
@@ -40,6 +21,11 @@ const InventoryPage: React.FC = () => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['menuItems'],
     queryFn: api.fetchMenuItems
+  });
+
+  const { data: alertsData } = useQuery({
+    queryKey: ['stockAlerts'],
+    queryFn: api.fetchStockAlerts
   });
 
   const { showToast, hideToast } = useToast();
@@ -57,8 +43,6 @@ const InventoryPage: React.FC = () => {
       showToast('Erro ao salvar as mudanças', 'error', 3000);
     }
   });
-
-
 
   const handleToggleVisibility = (itemId: string) => {
     const isRemoving = changedVisibilityIds.includes(itemId);
@@ -194,20 +178,7 @@ const InventoryPage: React.FC = () => {
             </div>
           ) : (
             <div>
-              {activeTab === 'estoque' && stockData && (() => {
-                const expiringItems = stockData.filter((item: any) =>
-                  item.expirationDate && ['expired', 'warning'].includes(getExpirationStatus(item.expirationDate))
-                );
-
-                if (expiringItems.length > 0) {
-                  return (
-                    <div style={{ backgroundColor: '#fee2e2', color: '#991b1b', padding: '12px', borderRadius: '8px', marginBottom: '16px' }}>
-                      <strong>Atenção:</strong> Você tem {expiringItems.length} item(ns) vencido(s) ou próximos do vencimento no estoque.
-                    </div>
-                  );
-                }
-                return null;
-              })()}
+              <StockAlerts alerts={alertsData || null} />
 
               {!isLoadingStock && !errorStock && stockData && stockData.length > 0 ? (
                 stockData.map((item: any) => (
@@ -218,27 +189,14 @@ const InventoryPage: React.FC = () => {
                       <span className={styles.itemStock}>
                         Em estoque: {item.stockAmount} {item.measureUnit}
                       </span>
-                      {item.expirationDate && (() => {
-                        const status = getExpirationStatus(item.expirationDate);
-
-                        let color = '#a1a1aa';
-                        let text = '';
-
-                        if (status === 'expired') {
-                          color = '#ef4444';
-                          text = ' (Vencido!)';
-                        } else if (status === 'warning') {
-                          color = '#f97316';
-                          text = ' (Vence em breve!)';
-                        }
-
-                        return (
-                          <span className={styles.itemStock} style={{ color, fontWeight: status !== 'good' ? 'bold' : 'normal' }}>
-                            Validade: {item.expirationDate.substring(0, 10).split('-').reverse().join('/')}
-                            {text}
-                          </span>
-                        );
-                      })()}
+                      {item.expirationDate && (
+                        <span className={styles.itemStock} style={{ color: '#eab308' }}>
+                          Validade: {item.expirationDate.substring(0, 10).split('-').reverse().join('/')}
+                        </span>
+                      )}
+                      <span className={styles.itemStock} style={{ color: '#8e8e93', fontSize: '0.8rem' }}>
+                        Alerta: {item.alertThreshold ?? 20}% do estoque · {item.alertDaysBefore ?? 7} dias antes do vencimento
+                      </span>
                     </div>
                     <div className={styles.itemActions}>
                       <Edit2 className={styles.actionIcon} />
@@ -275,6 +233,7 @@ const InventoryPage: React.FC = () => {
           onClose={() => setIsStockModalOpen(false)}
           onItemCreated={() => {
             refetchStock();
+            queryClient.invalidateQueries({ queryKey: ['stockAlerts'] });
           }}
         />
       </main>

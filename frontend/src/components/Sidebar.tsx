@@ -1,12 +1,22 @@
 import React from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { Home, Package, Plus, Boxes, CircleDollarSign, LogOut, Megaphone } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../services/api';
 import styles from './css/Sidebar.module.css';
 import logoSvg from '../assets/logo.svg';
 
 export const Sidebar: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { data: alertsData } = useQuery({
+    queryKey: ['stockAlerts'],
+    queryFn: api.fetchStockAlerts,
+    refetchInterval: 60000,
+  });
+
+  const totalAlerts = alertsData?.totalAlerts || 0;
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -38,7 +48,14 @@ export const Sidebar: React.FC = () => {
             <span className={styles.navLabel}>Pedidos</span>
           </Link>
           <Link to="/inventario" className={`${styles.navItem} ${isActive('/inventario')}`}>
-            <Boxes className={styles.navIcon} />
+            <div className={styles.iconBadgeWrapper}>
+              <Boxes className={styles.navIcon} />
+              {totalAlerts > 0 && (
+                <span className={styles.alertBadge}>
+                  {totalAlerts > 99 ? '99+' : totalAlerts}
+                </span>
+              )}
+            </div>
             <span className={styles.navLabel}>Inventário</span>
           </Link>
           <Link to="/financeiro" className={`${styles.navItem} ${isActive('/financeiro')}`}>

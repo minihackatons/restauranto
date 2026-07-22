@@ -16,6 +16,8 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
   const [maxStock, setMaxStock] = useState('');
   const [cost, setCost] = useState('');
   const [expirationDate, setExpirationDate] = useState('');
+  const [alertThreshold, setAlertThreshold] = useState('');
+  const [alertDaysBefore, setAlertDaysBefore] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -40,7 +42,9 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
         stockAmount: Number(stockAmount),
         maxStock: Number(maxStock),
         cost: Number(cost),
-        ...(expirationDate ? { expirationDate } : {})
+        ...(expirationDate ? { expirationDate } : {}),
+        ...(alertThreshold ? { alertThreshold: Number(alertThreshold) } : {}),
+        ...(alertDaysBefore ? { alertDaysBefore: Number(alertDaysBefore) } : {})
       };
 
       await api.createStockItem(payload);
@@ -52,6 +56,8 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
       setMaxStock('');
       setCost('');
       setExpirationDate('');
+      setAlertThreshold('');
+      setAlertDaysBefore('');
 
       onItemCreated();
       onClose();
@@ -159,6 +165,35 @@ export const CreateStockItemModal: React.FC<CreateStockItemModalProps> = ({ isOp
                 onChange={(e) => setExpirationDate(e.target.value)}
                 className={styles.input}
               />
+            </div>
+
+            <div className={styles.gridTwoColumns} style={{ marginTop: '1rem' }}>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Alerta de Estoque Mínimo (%)</label>
+                <input
+                  type="number"
+                  step="1"
+                  min="0"
+                  max="100"
+                  value={alertThreshold}
+                  onChange={(e) => setAlertThreshold(e.target.value)}
+                  className={styles.input}
+                  placeholder="20 (padrão)"
+                />
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Alerta de Vencimento (dias antes)</label>
+                <input
+                  type="number"
+                  step="1"
+                  min="0"
+                  value={alertDaysBefore}
+                  onChange={(e) => setAlertDaysBefore(e.target.value)}
+                  className={styles.input}
+                  placeholder="7 (padrão)"
+                />
+              </div>
             </div>
           </div>
 
