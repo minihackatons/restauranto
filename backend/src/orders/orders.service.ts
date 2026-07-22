@@ -206,16 +206,16 @@ export class OrdersService {
 
         const topItems = Object.values(itemsCount)
             .sort((a, b) => b.count - a.count)
-            .slice(0, 5);
+            .slice(0, 3);
 
         return {
             totalOrders,
             urgentOrders,
             topItems,
             funnel: {
-                views: 1250, // mock
-                clicks: 430, // mock
-                orders: totalOrders // real
+                views: 0,
+                clicks: 0,
+                orders: totalOrders
             }
         };
     }

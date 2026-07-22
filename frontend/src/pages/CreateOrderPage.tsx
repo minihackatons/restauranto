@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { ShoppingCart, Plus, Minus, Search, Bell, Settings, PackageOpen, Store, MessageCircle, UtensilsCrossed, CreditCard, QrCode, Banknote, AlertCircle, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { ShoppingCart, Plus, Minus, Search, PackageOpen, Store, MessageCircle, UtensilsCrossed, CreditCard, QrCode, Banknote, AlertCircle, X } from 'lucide-react';
 import { Sidebar } from '../components/Sidebar';
 import { PageHeader } from '../components/PageHeader';
 import { api } from '../services/api';
@@ -151,7 +150,7 @@ const CreateOrderPage: React.FC = () => {
                             <div key={item.id} className={styles.itemCard}>
                               {item.photoUrl ? (
                                 <img
-                                  src={`http://localhost:3000/items/${item.photoUrl.split(/[\\/]/).pop()}`}
+                                  src={item.photoUrl}
                                   alt={item.name}
                                   className={styles.itemImage}
                                 />

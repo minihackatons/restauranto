@@ -119,8 +119,11 @@ const InventoryPage: React.FC = () => {
 
           {activeTab === 'menu' ? (
             <div>
-              {!isLoading && !error && data?.map((category: any) => (
-                <div className={styles.categoryGroup} key={category.categoryName}>
+              {!isLoading && !error && (!data || data.length === 0 ? (
+                <div className={styles.emptyState}><p>Não há itens no cardápio</p></div>
+              ) : (
+                data.map((category: any) => (
+                  <div className={styles.categoryGroup} key={category.categoryName}>
                   <div className={styles.categoryHeader}>
                     <h3>{category.categoryName}</h3>
                     <ChevronDown className={styles.chevronIcon} />
@@ -168,7 +171,8 @@ const InventoryPage: React.FC = () => {
                       </div>
                     </div>
                   ))}
-                </div>
+                  </div>
+                ))
               ))}
 
               {isLoading && <div className={styles.emptyState}><p>Carregando as opções do menu...</p></div>}
