@@ -26,6 +26,12 @@ export class StockItem {
   @Column('date', { nullable: true })
   expirationDate?: string;
 
+  @Column('decimal', { precision: 10, scale: 2, default: 20 })
+  alertThreshold!: number;
+
+  @Column('int', { default: 7 })
+  alertDaysBefore!: number;
+
   @ManyToOne(() => Restaurant, restaurant => restaurant.id)
   restaurant!: Restaurant
 

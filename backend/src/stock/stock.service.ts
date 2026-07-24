@@ -27,6 +27,8 @@ export class StockService {
             stockAmount: dto.stockAmount,
             maxStock: dto.maxStock,
             expirationDate: dto.expirationDate,
+            ...(dto.alertThreshold !== undefined ? { alertThreshold: dto.alertThreshold } : {}),
+            ...(dto.alertDaysBefore !== undefined ? { alertDaysBefore: dto.alertDaysBefore } : {}),
             restaurant: { id: restaurantId }
         });
 
@@ -53,5 +55,75 @@ export class StockService {
         }
 
         return item;
+    }
+
+    async getAlerts(restaurantId: string) {
+        const items = await this.stockRepository.find({
+            where: { restaurant: { id: restaurantId } }
+        });
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const lowStock: Array<{
+            id: number;
+            name: string;
+            stockAmount: number;
+            maxStock: number;
+            measureUnit: string;
+            percentage: number;
+        }> = [];
+
+        const expiringSoon: Array<{
+            id: number;
+            name: string;
+            expirationDate: string;
+            daysUntilExpiry: number;
+        }> = [];
+
+        for (const item of items) {
+            const stockAmount = Number(item.stockAmount);
+            const maxStock = Number(item.maxStock);
+
+            const alertThresholdPercent = item.alertThreshold !== undefined && item.alertThreshold !== null ? Number(item.alertThreshold) : 20;
+            const thresholdRatio = alertThresholdPercent / 100;
+
+            if (maxStock > 0 && stockAmount <= maxStock * thresholdRatio) {
+                const percentage = Math.round((stockAmount / maxStock) * 100);
+                lowStock.push({
+                    id: item.id,
+                    name: item.name,
+                    stockAmount,
+                    maxStock,
+                    measureUnit: item.measureUnit,
+                    percentage,
+                });
+            }
+
+            if (item.expirationDate) {
+                const expDate = new Date(item.expirationDate);
+                expDate.setHours(0, 0, 0, 0);
+
+                const diffTime = expDate.getTime() - today.getTime();
+                const daysUntilExpiry = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                const alertDaysBefore = item.alertDaysBefore !== undefined && item.alertDaysBefore !== null ? Number(item.alertDaysBefore) : 7;
+
+                if (daysUntilExpiry <= alertDaysBefore) {
+                    expiringSoon.push({
+                        id: item.id,
+                        name: item.name,
+                        expirationDate: String(item.expirationDate),
+                        daysUntilExpiry,
+                    });
+                }
+            }
+        }
+
+        return {
+            lowStock,
+            expiringSoon,
+            totalAlerts: lowStock.length + expiringSoon.length,
+        };
     }
 }

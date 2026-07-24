@@ -33,6 +33,17 @@ export class StockController {
         return this.stockService.findAll(req.user.restaurantId);
     }
 
+    @Get('alerts')
+    async getStockAlerts(
+        @Req() req: any,
+    ){
+        if (!req.user.restaurantId) {
+            throw new ForbiddenException('Usuário não possui restaurante vinculado.');
+        }
+
+        return this.stockService.getAlerts(req.user.restaurantId);
+    }
+
     @Get(':id')
     async getStockItem(
         @Param('id') id: string,

@@ -8,11 +8,12 @@ import { CreateStockItemModal } from '../components/CreateStockItemModal';
 import { Sidebar } from '../components/Sidebar';
 import { PageHeader } from '../components/PageHeader';
 import { useToast } from '../components/Toast';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
+import { StockAlerts } from '../components/StockAlerts';
 
 const InventoryPage: React.FC = () => {
-
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'menu' | 'estoque'>('menu');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
@@ -21,6 +22,11 @@ const InventoryPage: React.FC = () => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['menuItems'],
     queryFn: api.fetchMenuItems
+  });
+
+  const { data: alertsData } = useQuery({
+    queryKey: ['stockAlerts'],
+    queryFn: api.fetchStockAlerts
   });
 
   const { showToast, hideToast } = useToast();
@@ -39,16 +45,14 @@ const InventoryPage: React.FC = () => {
     }
   });
 
-
-
   const handleToggleVisibility = (itemId: string) => {
     const isRemoving = changedVisibilityIds.includes(itemId);
-    const newIds = isRemoving 
-      ? changedVisibilityIds.filter(id => id !== itemId) 
+    const newIds = isRemoving
+      ? changedVisibilityIds.filter(id => id !== itemId)
       : [...changedVisibilityIds, itemId];
-      
+
     setChangedVisibilityIds(newIds);
-    
+
     if (newIds.length > 0) {
       showToast('Você tem mudanças não salvas', 'info', 0);
     } else {
@@ -85,16 +89,16 @@ const InventoryPage: React.FC = () => {
 
       <main className={styles.mainContent}>
         <PageHeader title="Estoque" />
-        
+
         <div className={styles.content}>
           <div className={styles.segmentedControl}>
-            <button 
+            <button
               className={`${styles.segmentBtn} ${activeTab === 'menu' ? styles.activeSegment : ''}`}
               onClick={() => setActiveTab('menu')}
             >
               Itens do Menu
             </button>
-            <button 
+            <button
               className={`${styles.segmentBtn} ${activeTab === 'estoque' ? styles.activeSegment : ''}`}
               onClick={() => setActiveTab('estoque')}
             >
@@ -104,7 +108,7 @@ const InventoryPage: React.FC = () => {
 
           {activeTab === 'menu' && changedVisibilityIds.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1rem', marginTop: '1rem' }}>
-              <button 
+              <button
                 className={styles.primaryBtn}
                 onClick={() => saveVisibilityMutation.mutate(changedVisibilityIds)}
                 disabled={saveVisibilityMutation.isPending}
@@ -130,9 +134,9 @@ const InventoryPage: React.FC = () => {
                     <div className={styles.itemCard} key={item.id}>
                       <div>
                         {item.photoUrl ? (
-                          <img 
-                            src={item.photoUrl} 
-                            alt={item.name} 
+                          <img
+                            src={`http://localhost:3000/items/${item.photoUrl.split(/[\\/]/).pop()}`}
+                            alt={item.name}
                             className={styles.itemImagePlaceholder}
                             style={{ objectFit: 'cover' }}
                           />
@@ -171,14 +175,16 @@ const InventoryPage: React.FC = () => {
                   </div>
                 ))
               ))}
-              
+
               {isLoading && <div className={styles.emptyState}><p>Carregando as opções do menu...</p></div>}
-              
+
               {error && <div className={styles.emptyState}><p>Erro ao carregar os itens. Tente novamente.</p></div>}
-              
+
             </div>
           ) : (
             <div>
+              <StockAlerts alerts={alertsData || null} />
+
               {!isLoadingStock && !errorStock && stockData && stockData.length > 0 ? (
                 stockData.map((item: any) => (
                   <div className={styles.itemCard} key={item.id}>
@@ -193,6 +199,9 @@ const InventoryPage: React.FC = () => {
                           Validade: {item.expirationDate.substring(0, 10).split('-').reverse().join('/')}
                         </span>
                       )}
+                      <span className={styles.itemStock} style={{ color: '#8e8e93', fontSize: '0.8rem' }}>
+                        Alerta: {item.alertThreshold ?? 20}% do estoque · {item.alertDaysBefore ?? 7} dias antes do vencimento
+                      </span>
                     </div>
                     <div className={styles.itemActions}>
                       <Edit2 className={styles.actionIcon} />
@@ -208,7 +217,7 @@ const InventoryPage: React.FC = () => {
           )}
         </div>
 
-        <button 
+        <button
           className={modalStyles.inventoryFab}
           onClick={() => {
             setEditingItem(null);
@@ -228,7 +237,7 @@ const InventoryPage: React.FC = () => {
           editItem={editingItem}
           onItemCreated={() => {
             refetch();
-          }} 
+          }}
         />
 
         <CreateStockItemModal
@@ -236,6 +245,7 @@ const InventoryPage: React.FC = () => {
           onClose={() => setIsStockModalOpen(false)}
           onItemCreated={() => {
             refetchStock();
+            queryClient.invalidateQueries({ queryKey: ['stockAlerts'] });
           }}
         />
       </main>
