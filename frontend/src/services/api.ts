@@ -38,6 +38,23 @@ export const api = {
 
     return response;
   },
+
+  patchFormData: async (endpoint: string, formData: FormData) => {
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: 'PATCH',
+      headers,
+      body: formData,
+    });
+
+    return response;
+  },
   
   patch: async (endpoint: string, body: any) => {
     const token = localStorage.getItem('token');

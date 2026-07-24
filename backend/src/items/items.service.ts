@@ -5,7 +5,7 @@ import { Item } from '../models/item.entity';
 import { Category } from '../models/category.entity';
 import { ItemIngredient } from '../models/item-ingredients.entity';
 import { StockItem } from '../models/stock-item.entity';
-import { CreateItemDto } from "../dtos/item.dto";
+import { CreateItemDto, UpdateItemDto } from "../dtos/item.dto";
 
 @Injectable()
 export class ItemsService {
@@ -108,12 +108,102 @@ export class ItemsService {
         const items = await this.itemRepository.find({
             where,
             relations: {
-                category: true
+                category: true,
+                ingredients: { stockItem: true }
             }
         });
 
         return {data: items}
     }
+
+    async updateItem(id: string, updateItemDto: UpdateItemDto, restaurantId: string, photoUrl?: string): Promise<Item> {
+        const item = await this.itemRepository.findOne({ where: { id }, relations: { restaurant: true } });
+        if (!item) {
+            throw new NotFoundException('Item não encontrado.');
+        }
+
+        if (item.restaurant?.id !== restaurantId) {
+            throw new ForbiddenException('Você não pode alterar um item de outro restaurante.');
+        }
+
+        const { categoryId, ingredients, ...itemData } = updateItemDto;
+
+        if (categoryId) {
+            const category = await this.categoryRepository.findOne({
+                where: { id: categoryId },
+                relations: { restaurant: true }
+            });
+
+            if (!category) {
+                throw new NotFoundException('Categoria não encontrada.');
+            }
+
+            if (category.restaurant?.id !== restaurantId) {
+                throw new ForbiddenException('Você não pode adicionar um item a uma categoria de outro restaurante.');
+            }
+            item.category = category;
+        }
+
+        let parsedIngredients: any[] | null = null;
+        let currentCost: number | null = item.currentCost;
+        let currentProfit: number | null = item.currentProfit;
+
+        if (ingredients !== undefined) {
+            try {
+                parsedIngredients = JSON.parse(ingredients);
+                if (Array.isArray(parsedIngredients) && parsedIngredients.length > 0) {
+                    currentCost = 0;
+                    const stockIds = parsedIngredients.map(ing => ing.stockItemId);
+                    const stockItems = await this.stockItemRepository.findBy({ id: In(stockIds) });
+                    
+                    for (const ing of parsedIngredients) {
+                        const stockItem = stockItems.find(s => s.id === Number(ing.stockItemId));
+                        if (stockItem && stockItem.maxStock && Number(stockItem.maxStock) > 0) {
+                            currentCost += ((Number(stockItem.cost) / Number(stockItem.maxStock)) * Number(ing.amount));
+                        } else if (stockItem) {
+                            currentCost += (Number(stockItem.cost) * Number(ing.amount));
+                        }
+                    }
+                    const newPrice = itemData.price !== undefined ? Number(itemData.price) : Number(item.price);
+                    currentProfit = newPrice - currentCost;
+                } else {
+                    currentCost = null;
+                    currentProfit = null;
+                }
+            } catch (err) {
+                throw new BadRequestException('Formato de ingredientes inválido.');
+            }
+        } else if (itemData.price !== undefined && currentCost !== null) {
+            currentProfit = Number(itemData.price) - currentCost;
+        }
+
+        Object.assign(item, itemData);
+        if (photoUrl) {
+            item.photoUrl = photoUrl;
+        }
+        item.currentCost = currentCost;
+        item.currentProfit = currentProfit;
+
+        const updatedItem = await this.itemRepository.save(item);
+
+        if (parsedIngredients !== null) {
+            await this.itemIngredientRepository.delete({ item: { id: updatedItem.id } });
+            
+            if (parsedIngredients.length > 0) {
+                const ingredientEntities = parsedIngredients.map((ing: any) => {
+                    return this.itemIngredientRepository.create({
+                        item: { id: updatedItem.id },
+                        stockItem: { id: ing.stockItemId },
+                        amount: ing.amount
+                    });
+                });
+                await this.itemIngredientRepository.save(ingredientEntities);
+            }
+        }
+
+        return updatedItem;
+    }
+
 
     async changeVisibility(ids: string[], restaurantId: string){
         return await this.itemRepository
