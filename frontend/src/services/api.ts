@@ -178,6 +178,15 @@ export const api = {
     return res.data || res;
   },
 
+  fetchStockAlerts: async () => {
+    const response = await api.get("/stock/alerts");
+    if (!response.ok) {
+      throw new Error('Erro ao buscar alertas de estoque');
+    }
+    const res = await response.json();
+    return res.data || res;
+  },
+
   createStockItem: async (data: any) => {
     const response = await api.post("/stock", data);
     if (!response.ok) {

@@ -38,6 +38,16 @@ export class CreateStockItemDto {
   @IsOptional()
   @IsDateString()
   expirationDate?: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  alertThreshold?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  alertDaysBefore?: number;
 }
 
 export class UpdateStockItemDto extends PartialType(CreateStockItemDto) {}
