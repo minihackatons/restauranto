@@ -44,8 +44,29 @@ export const OrdersListView: React.FC<OrdersListViewProps> = ({ isLoading, error
     }
   });
 
+  const printMutation = useMutation({
+    mutationFn: (id: string) => api.generateReceipt(id),
+    onSuccess: (blob: Blob, id: string) => {
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `recibo-${id.slice(0, 8)}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    },
+    onError: (err: any) => {
+      showToast(err.message || 'Erro ao gerar recibo', 'error');
+    }
+  });
+
   const handleStatusChange = (orderId: string, newStatus: string) => {
     statusMutation.mutate({ id: orderId, status: newStatus });
+  };
+
+  const handlePrint = (orderId: string) => {
+    printMutation.mutate(orderId);
   };
 
   return (
@@ -130,8 +151,13 @@ export const OrdersListView: React.FC<OrdersListViewProps> = ({ isLoading, error
                   ))}
                 </select>
                 <div className={styles.buttonsRow}>
-                  <button className={styles.actionBtnPrimaryFlex}>
-                    <Printer size={16} /> Imprimir
+                  <button 
+                    className={styles.actionBtnPrimaryFlex}
+                    onClick={() => handlePrint(order.id)}
+                    disabled={printMutation.isPending && printMutation.variables === order.id}
+                  >
+                    <Printer size={16} /> 
+                    {printMutation.isPending && printMutation.variables === order.id ? 'Gerando...' : 'Imprimir'}
                   </button>
                   <Link to={`/pedido/${order.id}`} className={styles.actionBtnSecondaryFlex} style={{ textDecoration: 'none' }}>
                     Detalhes <ChevronRight size={16} />
