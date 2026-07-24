@@ -34,3 +34,7 @@ export class CreateItemDto {
   @IsOptional()
   ingredients?: string;
 }
+
+import { PartialType } from '@nestjs/swagger';
+
+export class UpdateItemDto extends PartialType(CreateItemDto) {}

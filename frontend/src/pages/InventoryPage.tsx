@@ -16,6 +16,7 @@ const InventoryPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'menu' | 'estoque'>('menu');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['menuItems'],
@@ -156,7 +157,7 @@ const InventoryPage: React.FC = () => {
                         </div>
                       </div>
                       <div className={styles.itemActions}>
-                        <Edit2 className={styles.actionIcon} />
+                        <Edit2 className={styles.actionIcon} onClick={() => { setEditingItem(item); setIsModalOpen(true); }} style={{ cursor: 'pointer' }} />
                         <div 
                           className={`${styles.toggle} ${isItemVisible(item) ? styles.toggleActive : ''}`}
                           onClick={() => handleToggleVisibility(item.id)}
@@ -209,15 +210,22 @@ const InventoryPage: React.FC = () => {
 
         <button 
           className={modalStyles.inventoryFab}
-          onClick={() => activeTab === 'menu' ? setIsModalOpen(true) : setIsStockModalOpen(true)}
+          onClick={() => {
+            setEditingItem(null);
+            activeTab === 'menu' ? setIsModalOpen(true) : setIsStockModalOpen(true);
+          }}
         >
           <Plus className={modalStyles.fabIcon} />
         </button>
 
         <CreateItemModal 
           isOpen={isModalOpen} 
-          onClose={() => setIsModalOpen(false)} 
+          onClose={() => {
+            setIsModalOpen(false);
+            setEditingItem(null);
+          }} 
           stockItems={stockData || []}
+          editItem={editingItem}
           onItemCreated={() => {
             refetch();
           }} 
