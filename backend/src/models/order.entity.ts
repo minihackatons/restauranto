@@ -37,6 +37,9 @@ export class Order {
   @Column({ nullable: true })
   channel!: string;
 
+  @Column({ nullable: true })
+  receiptUrl?: string;
+
   @Column({ type: 'timestamp', nullable: true })
   deliveryDate!: Date;
 

@@ -223,6 +223,14 @@ export const api = {
     return response.json();
   },
 
+  generateReceipt: async (orderId: string) => {
+    const response = await api.post(`/orders/${orderId}/receipt`, {});
+    if (!response.ok) {
+      throw new Error('Erro ao gerar recibo');
+    }
+    return response.blob();
+  },
+
   fetchOrders: async (page: number = 1, includeDelivered: boolean = false) => {
     const response = await api.get(`/orders?page=${page}&includeDelivered=${includeDelivered}`);
     if (!response.ok) {

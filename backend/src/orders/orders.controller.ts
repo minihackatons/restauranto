@@ -1,7 +1,8 @@
-import { Controller, ForbiddenException, NotFoundException, Post, Get, Req, UseGuards, Body, Query, Param, Patch } from '@nestjs/common';
+import { Controller, ForbiddenException, NotFoundException, Post, Get, Req, Res, UseGuards, Body, Query, Param, Patch, StreamableFile, Header } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from 'src/dtos/order.dto';
+import type { Response } from 'express';
 
 @Controller('orders')
 @UseGuards(AuthGuard('jwt'))
@@ -55,5 +56,19 @@ export class OrdersController {
       throw new ForbiddenException('Usuário não possui restaurante vinculado.');
     }
     return this.ordersService.updateStatus(req.user.restaurantId, id, dto);
+  }
+
+  @Post(':id/receipt')
+  async generateReceipt(@Req() req: any, @Res() res: Response, @Param('id') id: string) {
+    if (!req.user.restaurantId) {
+      throw new ForbiddenException('Usuário não possui restaurante vinculado.');
+    }
+    const pngBuffer = await this.ordersService.generateReceipt(req.user.restaurantId, id);
+    res.set({
+      'Content-Type': 'image/png',
+      'Content-Disposition': `attachment; filename="recibo-${id.slice(0, 8)}.png"`,
+      'Content-Length': pngBuffer.length,
+    });
+    res.end(pngBuffer);
   }
 }
