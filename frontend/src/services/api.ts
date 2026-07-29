@@ -240,6 +240,24 @@ export const api = {
     return res;
   },
 
+  exportOrdersCsv: async (filters?: { startDate?: string; endDate?: string; status?: string }) => {
+    const params = new URLSearchParams();
+    if (filters?.startDate) params.append('startDate', filters.startDate);
+    if (filters?.endDate) params.append('endDate', filters.endDate);
+    if (filters?.status) params.append('status', filters.status);
+
+    const query = params.toString();
+    const endpoint = `/orders/export/csv${query ? `?${query}` : ''}`;
+
+    const response = await api.get(endpoint);
+
+    if (!response.ok) {
+      throw new Error('Erro ao exportar pedidos');
+    }
+
+    return response.blob();
+  },
+
   fetchOrderById: async (id: string) => {
     const response = await api.get(`/orders/${id}`);
     if (!response.ok) {

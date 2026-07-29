@@ -5,12 +5,45 @@ import { OrderItem } from 'src/models/order-item.entity';
 import { Order } from 'src/models/order.entity';
 import { Item } from 'src/models/item.entity';
 import { StockItem } from 'src/models/stock-item.entity';
-import { In, Repository, MoreThanOrEqual, Not, FindOptionsWhere, DataSource } from 'typeorm';
+import { In, Repository, MoreThanOrEqual, LessThanOrEqual, Between, Not, FindOptionsWhere, DataSource } from 'typeorm';
 import { FinanceService } from 'src/finance/finance.service';
 import { BucketService } from 'src/shared/bucket.service';
 import satori from 'satori';
 import { html } from 'satori-html';
 import { Resvg } from '@resvg/resvg-js';
+
+export interface ExportCsvFilters {
+    startDate?: string;
+    endDate?: string;
+    status?: string;
+}
+
+const CSV_COLUMNS = [
+    'pedido_id',
+    'status',
+    'cliente',
+    'contato_cliente',
+    'endereco_entrega',
+    'forma_pagamento',
+    'canal',
+    'desconto',
+    'total_pedido',
+    'data_criacao',
+    'data_entrega',
+    'item_nome',
+    'item_quantidade',
+    'item_preco_unitario',
+    'item_subtotal',
+];
+
+function escapeCsvValue(val: unknown): string {
+    if (val === null || val === undefined) return '';
+    const str = String(val);
+    if (str.includes(';') || str.includes('\n') || str.includes('"')) {
+        return `"${str.replace(/"/g, '""')}"`;
+    }
+    return str;
+}
 
 let cachedFont: ArrayBuffer | null = null;
 async function getFont() {
@@ -320,5 +353,62 @@ export class OrdersService {
         await this.orderRepository.save(order);
 
         return pngBuffer;
+    }
+
+    async exportCsv(restaurantId: string, filters?: ExportCsvFilters): Promise<string> {
+        const where: FindOptionsWhere<Order> = {
+            restaurant: { id: restaurantId }
+        };
+
+        if (filters?.status) {
+            where.status = filters.status;
+        }
+
+        if (filters?.startDate && filters?.endDate) {
+            where.createdAt = Between(new Date(filters.startDate), new Date(filters.endDate));
+        } else if (filters?.startDate) {
+            where.createdAt = MoreThanOrEqual(new Date(filters.startDate));
+        } else if (filters?.endDate) {
+            where.createdAt = LessThanOrEqual(new Date(filters.endDate));
+        }
+
+        const orders = await this.orderRepository.find({
+            where,
+            relations: {
+                items: {
+                    item: true
+                }
+            },
+            order: { createdAt: 'DESC' }
+        });
+
+        const BOM = '\uFEFF';
+        let csvContent = BOM + CSV_COLUMNS.join(';') + '\n';
+
+        for (const order of orders) {
+            for (const orderItem of order.items) {
+                const subtotal = orderItem.quantity * orderItem.unitPrice;
+                const row = [
+                    escapeCsvValue(order.id),
+                    escapeCsvValue(order.status),
+                    escapeCsvValue(order.clientName),
+                    escapeCsvValue(order.clientContact),
+                    escapeCsvValue(order.deliveryAddress),
+                    escapeCsvValue(order.paymentMethod),
+                    escapeCsvValue(order.channel),
+                    escapeCsvValue(order.discount),
+                    escapeCsvValue(order.totalAmount),
+                    escapeCsvValue(order.createdAt.toISOString()),
+                    escapeCsvValue(order.deliveryDate ? order.deliveryDate.toISOString() : ''),
+                    escapeCsvValue(orderItem.item?.name),
+                    escapeCsvValue(orderItem.quantity),
+                    escapeCsvValue(orderItem.unitPrice),
+                    escapeCsvValue(subtotal)
+                ];
+                csvContent += row.join(';') + '\n';
+            }
+        }
+
+        return csvContent;
     }
 }
