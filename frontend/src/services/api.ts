@@ -38,6 +38,23 @@ export const api = {
 
     return response;
   },
+
+  patchFormData: async (endpoint: string, formData: FormData) => {
+    const token = localStorage.getItem('token');
+    const headers: HeadersInit = {};
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_URL}${endpoint}`, {
+      method: 'PATCH',
+      headers,
+      body: formData,
+    });
+
+    return response;
+  },
   
   patch: async (endpoint: string, body: any) => {
     const token = localStorage.getItem('token');
@@ -221,6 +238,24 @@ export const api = {
     }
     const res = await response.json();
     return res;
+  },
+
+  exportOrdersCsv: async (filters?: { startDate?: string; endDate?: string; status?: string }) => {
+    const params = new URLSearchParams();
+    if (filters?.startDate) params.append('startDate', filters.startDate);
+    if (filters?.endDate) params.append('endDate', filters.endDate);
+    if (filters?.status) params.append('status', filters.status);
+
+    const query = params.toString();
+    const endpoint = `/orders/export/csv${query ? `?${query}` : ''}`;
+
+    const response = await api.get(endpoint);
+
+    if (!response.ok) {
+      throw new Error('Erro ao exportar pedidos');
+    }
+
+    return response.blob();
   },
 
   fetchOrderById: async (id: string) => {
