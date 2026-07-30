@@ -135,7 +135,7 @@ const InventoryPage: React.FC = () => {
                       <div>
                         {item.photoUrl ? (
                           <img
-                            src={`http://localhost:3000/items/${item.photoUrl.split(/[\\/]/).pop()}`}
+                            src={`${item.photoUrl}`}
                             alt={item.name}
                             className={styles.itemImagePlaceholder}
                             style={{ objectFit: 'cover' }}
