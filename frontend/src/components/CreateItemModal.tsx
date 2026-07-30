@@ -11,9 +11,10 @@ interface CreateItemModalProps {
   onClose: () => void;
   stockItems: any[];
   onItemCreated: () => void;
+  editItem?: any;
 }
 
-export const CreateItemModal: React.FC<CreateItemModalProps> = ({ isOpen, onClose, stockItems, onItemCreated }) => {
+export const CreateItemModal: React.FC<CreateItemModalProps> = ({ isOpen, onClose, stockItems, onItemCreated, editItem }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
@@ -30,6 +31,36 @@ export const CreateItemModal: React.FC<CreateItemModalProps> = ({ isOpen, onClos
     queryKey: ['categories'],
     queryFn: api.fetchCategories
   });
+
+  React.useEffect(() => {
+    if (isOpen) {
+      if (editItem) {
+        setName(editItem.name || '');
+        setDescription(editItem.description || '');
+        setPrice(editItem.price ? editItem.price.toString() : '');
+        setCategoryId(editItem.category?.id?.toString() || '');
+        setPhotoPreview(editItem.photoUrl || null);
+        setPhoto(null);
+        if (editItem.ingredients && Array.isArray(editItem.ingredients)) {
+          setIngredients(editItem.ingredients.map((ing: any) => ({
+            stockItemId: ing.stockItem?.id?.toString() || '',
+            amount: ing.amount ? ing.amount.toString() : ''
+          })));
+        } else {
+          setIngredients([]);
+        }
+      } else {
+        setName('');
+        setDescription('');
+        setPrice('');
+        setCategoryId('');
+        setPhoto(null);
+        setPhotoPreview(null);
+        setIngredients([]);
+      }
+      setError('');
+    }
+  }, [isOpen, editItem]);
 
   if (!isOpen) return null;
 
@@ -97,13 +128,20 @@ export const CreateItemModal: React.FC<CreateItemModalProps> = ({ isOpen, onClos
       
       if (ingredients.length > 0) {
         formData.append('ingredients', JSON.stringify(ingredients.filter(ing => ing.stockItemId && ing.amount)));
+      } else if (editItem) {
+        formData.append('ingredients', JSON.stringify([]));
       }
 
-      const response = await api.postFormData('/items', formData);
+      let response;
+      if (editItem) {
+        response = await api.patchFormData(`/items/${editItem.id}`, formData);
+      } else {
+        response = await api.postFormData('/items', formData);
+      }
       
       if (!response.ok) {
         const errData = await response.json().catch(() => null);
-        throw new Error(errData?.message || 'Falha ao criar item');
+        throw new Error(errData?.message || (editItem ? 'Falha ao editar item' : 'Falha ao criar item'));
       }
       
       // Reset form
@@ -128,7 +166,7 @@ export const CreateItemModal: React.FC<CreateItemModalProps> = ({ isOpen, onClos
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2>Novo Item</h2>
+          <h2>{editItem ? 'Editar Item' : 'Novo Item'}</h2>
           <button className={styles.closeBtn} onClick={onClose}>
             <X size={20} />
           </button>
@@ -302,7 +340,7 @@ export const CreateItemModal: React.FC<CreateItemModalProps> = ({ isOpen, onClos
                   Salvando...
                 </>
               ) : (
-                'Salvar Item'
+                editItem ? 'Salvar Alterações' : 'Salvar Item'
               )}
             </button>
           </div>

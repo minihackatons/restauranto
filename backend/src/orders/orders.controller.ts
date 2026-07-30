@@ -1,7 +1,8 @@
-import { Controller, ForbiddenException, NotFoundException, Post, Get, Req, UseGuards, Body, Query, Param, Patch } from '@nestjs/common';
+import { Controller, ForbiddenException, NotFoundException, Post, Get, Req, Res, UseGuards, Body, Query, Param, Patch, StreamableFile, Header } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto, UpdateOrderStatusDto } from 'src/dtos/order.dto';
+import type { Response } from 'express';
 
 @Controller('orders')
 @UseGuards(AuthGuard('jwt'))
@@ -37,6 +38,28 @@ export class OrdersController {
     return this.ordersService.getDashboardData(req.user.restaurantId, days);
   }
 
+  @Get('export/csv')
+  async exportCsv(
+    @Req() req: any,
+    @Res() res: Response,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('status') status?: string
+  ) {
+    if (!req.user.restaurantId) {
+      throw new ForbiddenException('Usuário não possui restaurante vinculado.');
+    }
+
+    const csvContent = await this.ordersService.exportCsv(req.user.restaurantId, { startDate, endDate, status });
+    const dateStr = new Date().toISOString().split('T')[0];
+
+    res.set({
+      'Content-Type': 'text/csv; charset=utf-8',
+      'Content-Disposition': `attachment; filename="pedidos-${dateStr}.csv"`,
+    });
+    res.end(csvContent);
+  }
+
   @Get(':id')
   async findOne(@Req() req: any, @Param('id') id: string) {
     if (!req.user.restaurantId) {
@@ -55,5 +78,19 @@ export class OrdersController {
       throw new ForbiddenException('Usuário não possui restaurante vinculado.');
     }
     return this.ordersService.updateStatus(req.user.restaurantId, id, dto);
+  }
+
+  @Post(':id/receipt')
+  async generateReceipt(@Req() req: any, @Res() res: Response, @Param('id') id: string) {
+    if (!req.user.restaurantId) {
+      throw new ForbiddenException('Usuário não possui restaurante vinculado.');
+    }
+    const pngBuffer = await this.ordersService.generateReceipt(req.user.restaurantId, id);
+    res.set({
+      'Content-Type': 'image/png',
+      'Content-Disposition': `attachment; filename="recibo-${id.slice(0, 8)}.png"`,
+      'Content-Length': pngBuffer.length,
+    });
+    res.end(pngBuffer);
   }
 }

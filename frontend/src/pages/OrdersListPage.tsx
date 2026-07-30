@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Search, SlidersHorizontal } from 'lucide-react';
+import { Search, SlidersHorizontal, Download } from 'lucide-react';
 import { Sidebar } from '../components/Sidebar';
 import { PageHeader } from '../components/PageHeader';
 import { OrdersListView } from '../components/OrdersListView';
 import { OrdersCalendarView } from '../components/OrdersCalendarView';
+import { ExportCsvModal } from '../components/ExportCsvModal';
 import { api } from '../services/api';
 import styles from './css/OrdersListPage.module.css';
 
@@ -13,6 +14,7 @@ const OrdersListPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showDelivered, setShowDelivered] = useState(false);
   const [page, setPage] = useState(1);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   const { data: response, isLoading, error } = useQuery({
     queryKey: ['orders', page, showDelivered],
@@ -70,6 +72,10 @@ const OrdersListPage: React.FC = () => {
               <SlidersHorizontal size={16} />
               Filtros
             </button>
+            <button className={styles.filterBtn} onClick={() => setIsExportModalOpen(true)}>
+              <Download size={16} />
+              Exportar CSV
+            </button>
           </div>
 
           <div className={styles.checkboxRow}>
@@ -115,6 +121,8 @@ const OrdersListPage: React.FC = () => {
           ) : (
             <OrdersCalendarView orders={orders || []} />
           )}
+          
+          <ExportCsvModal isOpen={isExportModalOpen} onClose={() => setIsExportModalOpen(false)} />
         </div>
       </main>
     </div>
