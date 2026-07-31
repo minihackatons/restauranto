@@ -157,7 +157,13 @@ export const api = {
   },
 
   updateMyRestaurant: async (data: any) => {
-    const response = await api.patch("/restaurants", data);
+    let response;
+    if (data instanceof FormData) {
+      response = await api.patchFormData("/restaurants", data);
+    } else {
+      response = await api.patch("/restaurants", data);
+    }
+    
     if (!response.ok) {
       const err = await response.json().catch(() => null);
       throw new Error(err?.message || 'Erro ao atualizar o restaurante');

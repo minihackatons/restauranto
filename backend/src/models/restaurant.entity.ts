@@ -23,6 +23,9 @@ export class Restaurant {
   @Column({ nullable: true })
   phone!: string;
 
+  @Column({ nullable: true })
+  logoUrl!: string;
+
   @OneToMany(() => Category, (category) => category.restaurant, { cascade: true })
   categories!: Category[];
 
