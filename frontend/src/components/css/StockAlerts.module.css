@@ -1,7 +1,5 @@
 .alertsContainer {
-  background: rgba(28, 28, 30, 0.6);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: #1c1c1e;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   padding: 20px;
@@ -60,15 +58,18 @@
 }
 
 .sectionsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  display: flex;
+  overflow-x: auto;
   gap: 16px;
+  padding-bottom: 8px;
 }
 
 .alertSection {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-width: 300px;
+  flex: 1;
 }
 
 .sectionTitle {
@@ -112,6 +113,7 @@
 }
 
 .lowStockCard {
+  background: rgba(245, 158, 11, 0.1);
   border-left-color: #f59e0b;
   border-top: 1px solid rgba(245, 158, 11, 0.15);
   border-right: 1px solid rgba(245, 158, 11, 0.08);
@@ -119,6 +121,7 @@
 }
 
 .expiringCard {
+  background: rgba(239, 68, 68, 0.1);
   border-left-color: #ef4444;
   border-top: 1px solid rgba(239, 68, 68, 0.15);
   border-right: 1px solid rgba(239, 68, 68, 0.08);
@@ -211,4 +214,22 @@
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.ctaButton {
+  margin-top: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: fit-content;
+}
+
+.ctaButton:hover {
+  background: rgba(255, 255, 255, 0.2);
 }

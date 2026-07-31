@@ -19,7 +19,7 @@ const FinancePage: React.FC = () => {
 
   const { data: financeOverview, isLoading, error, refetch } = useQuery({
     queryKey: ['financeOverview', range],
-    queryFn: api.fetchFinanceOverview,
+    queryFn: () => api.fetchFinanceOverview(range),
   });
 
   if (isLoading || error) {

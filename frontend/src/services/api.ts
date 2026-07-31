@@ -283,8 +283,8 @@ export const api = {
     return response.json();
   },
 
-  fetchFinanceOverview: async () => {
-    const response = await api.get('/finance');
+  fetchFinanceOverview: async (period: string = 'week') => {
+    const response = await api.get(`/finance?period=${period}`);
     if (!response.ok) {
       throw new Error('Erro ao buscar visão geral financeira');
     }

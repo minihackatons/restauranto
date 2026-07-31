@@ -9,12 +9,17 @@ export class FinanceService {
     @InjectRepository(FinanceRecord)
     private financeRepository: Repository<FinanceRecord>
   ) { }
-  async getOverview(restaurantId: string) {
+  async getOverview(restaurantId: string, period: string='week') {
+    const daysAgo = period == 'week' ? 7 : 30;
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() - daysAgo);
+
     return await this.financeRepository.find({
       where: {
         restaurant: {
           id: restaurantId
-        }
+        },
+        createdAt: MoreThanOrEqual(startDate)
       },
       relations: {
         order: true
