@@ -2,27 +2,29 @@
 .container {
   display: flex;
   min-height: 100vh;
-  background-color: #0f0f0f;
+  background-color: #000000;
   color: #ffffff;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  width: 100%;
 }
 
 .mainContent {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 32px;
-  height: 100vh;
-  box-sizing: border-box;
-  background-color: #121212;
+  background-color: #000000;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 /* Header */
 .topHeader {
+  padding: 16px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(28, 28, 30, 0.4);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
 }
 
 .pageTitle {
@@ -45,34 +47,34 @@
   color: #ffffff;
 }
 
-/* Two Column Layout */
-.posLayout {
-  display: flex;
+/* Wizard Layout */
+.wizardContainer {
   flex: 1;
-  gap: 24px;
-  overflow: hidden; /* To allow inner scrolling */
+  display: flex;
+  flex-direction: column;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 24px;
+  padding-bottom: 200px; /* Space for bottom button */
+  box-sizing: border-box;
 }
 
 /* Menu Section */
 .menuSection {
-  flex: 2;
   display: flex;
   flex-direction: column;
-  background: #1c1c1e;
-  border-radius: 16px;
-  border: 1px solid #2a2a2a;
-  overflow: hidden;
 }
 
 .searchContainer {
-  padding: 20px;
-  border-bottom: 1px solid #2a2a2a;
+  margin-bottom: 24px;
 }
 
 .searchInputWrapper {
   display: flex;
   align-items: center;
-  background: #2c2c2e;
+  background: rgba(28, 28, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   padding: 12px 16px;
   gap: 12px;
@@ -91,9 +93,8 @@
 }
 
 .menuContent {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
+  display: flex;
+  flex-direction: column;
 }
 
 .categoryGroup {
@@ -110,24 +111,25 @@
 }
 
 .itemsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
 }
 
 /* Item Card */
 .itemCard {
   display: flex;
   align-items: center;
-  background: #2c2c2e;
-  border-radius: 16px;
-  padding: 16px;
-  border: 1px solid transparent;
+  background-color: rgba(28, 28, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px;
   transition: border-color 0.2s, background 0.2s;
 }
 .itemCard:hover {
   border-color: #6366F1;
-  background: #3a3a3c;
+  background-color: rgba(28, 28, 30, 0.8);
 }
 
 .itemImage {
@@ -202,14 +204,24 @@
   text-align: center;
 }
 
-/* Cart Section */
+/* Forms inside Wizard */
+.checkoutForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.backBtn:hover {
+  background: #3a3a3c;
+}
+
 .cartSection {
   flex: 1;
   min-width: 450px;
   max-width: 500px;
   display: flex;
   flex-direction: column;
-  background: #1c1c1e;
+  background: #000000;
   border-radius: 16px;
   border: 1px solid #2a2a2a;
   overflow: hidden;
@@ -268,7 +280,7 @@
 
 .cartFooter {
   padding: 24px 20px;
-  background: #1c1c1e;
+  background: #000000;
   border-top: 1px solid #2a2a2a;
 }
 
@@ -303,6 +315,33 @@
   background: #4f46e5;
 }
 
+.backBtn {
+  flex: 1;
+  padding: 16px;
+  background: #2c2c2e;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+
+.actionButtonsRow {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+.actionButtonsRow .submitBtn {
+  flex: 2;
+}
+
 .submitBtn:disabled {
   background: #3a3a3c;
   color: #8e8e93;
@@ -333,22 +372,22 @@
 .formGroup {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
 .formLabel {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 600;
   color: #a0a0a0;
 }
 
 .inputField {
-  background: #2c2c2e;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  padding: 12px;
+  background: rgba(28, 28, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
   color: #ffffff;
-  font-size: 14px;
+  font-size: 16px;
   width: 100%;
   outline: none;
   box-sizing: border-box;
@@ -358,29 +397,26 @@
   border-color: #6366F1;
 }
 
-.inputRow {
-  display: flex;
-  gap: 12px;
-}
-
 .toggleGrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  flex-direction: row;
   gap: 8px;
+  width: 100%;
 }
 
 .toggleBtn {
-  background: #2c2c2e;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  padding: 12px 4px;
+  flex: 1;
+  background: rgba(28, 28, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   color: #ffffff;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   transition: all 0.2s;
 }
@@ -393,77 +429,124 @@
   color: #6366F1;
 }
 
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .mainContent {
-    padding: 24px;
-  }
-  .posLayout {
-    flex-direction: column;
-    overflow-y: auto;
-    overflow-x: hidden;
-  }
-  .menuSection, .cartSection {
-    flex: none;
-    height: auto;
-    min-height: 400px;
-  }
-  .cartSection {
-    min-width: 100%;
-    max-width: 100%;
+/* Floating Bottom Bar */
+.bottomActionBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(28, 28, 30, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 24px;
+  z-index: 100;
+}
+
+.bottomActionInner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 769px) {
+  .bottomActionBar {
+    left: 250px; /* Account for desktop sidebar */
+    right: 0;
   }
 }
 
+.bottomActionTotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #fff;
+  font-weight: 600;
+}
+
+.bigSubmitBtn {
+  width: 100%;
+  padding: 16px;
+  background: #6366F1;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.bigSubmitBtn:hover:not(:disabled) {
+  background: #4f46e5;
+}
+
+.bigSubmitBtn:disabled {
+  background: #3a3a3c;
+  color: #8e8e93;
+  cursor: not-allowed;
+}
+
+.backBtn {
+  width: 100%;
+  padding: 16px;
+  background: #2c2c2e;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.actionButtonsRow {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+.actionButtonsRow .bigSubmitBtn {
+  flex: 2;
+}
+.actionButtonsRow .backBtn {
+  flex: 1;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .mainContent {
+  .container {
+    flex-direction: column;
+  }
+  .wizardContainer {
     padding: 16px;
-    height: calc(100dvh - 80px); /* Account for mobile sidebar */
-    overflow: hidden; 
+    padding-bottom: 200px;
+  }
+  .topHeader {
+    background: rgba(28, 28, 30, 0.4);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
   .pageTitle {
     font-size: 22px;
   }
-  .posLayout {
-    flex-direction: column;
-    overflow: hidden; /* Prevent page scroll */
-    gap: 16px;
-  }
-  .menuSection {
-    flex: 1;
-    min-height: 0;
-  }
-  .cartSection {
-    flex: 1;
-    min-width: 100%;
-    max-width: 100%;
-    min-height: 0;
-  }
   .itemsGrid {
-    grid-template-columns: 1fr; /* Single column items */
+    grid-template-columns: 1fr;
   }
   .itemImage {
     width: 72px;
     height: 72px;
   }
-  .itemName {
-    font-size: 15px;
-  }
-  .itemPrice {
-    font-size: 16px;
-  }
-  .cartHeader {
+  .bottomActionBar {
     padding: 16px;
-    font-size: 16px;
-  }
-  .cartFooter {
-    padding: 16px;
-  }
-  .cartTotal {
-    font-size: 18px;
-    margin-bottom: 16px;
-  }
-  .submitBtn {
-    padding: 14px;
-    font-size: 15px;
   }
 }
