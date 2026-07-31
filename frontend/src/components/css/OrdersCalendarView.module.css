@@ -87,3 +87,8 @@
 .calendarWrapper :global(.fc-header-toolbar) {
   margin-bottom: 1.5em !important;
 }
+
+/* Event hover cursor */
+.calendarWrapper :global(.fc-event) {
+  cursor: pointer;
+}

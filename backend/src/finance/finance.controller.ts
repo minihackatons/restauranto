@@ -8,11 +8,11 @@ export class FinanceController {
   constructor(private readonly financeService: FinanceService) {}
 
   @Get()
-  getOverview(@Req() req: any) {
+  getOverview(@Req() req: any, @Query('period') period?: 'week' | 'month') {
     if (!req.user.restaurantId) {
       throw new ForbiddenException('Usuário não possui restaurante vinculado.');
     }
-    return this.financeService.getOverview(req.user.restaurantId);
+    return this.financeService.getOverview(req.user.restaurantId, period);
   }
 
   @Get('dashboard')

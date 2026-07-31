@@ -78,6 +78,7 @@ export const StockAlerts: React.FC<StockAlertsProps> = ({ alerts }) => {
                         style={{ width: `${Math.min(Math.max(item.percentage, 5), 100)}%` }}
                       />
                     </div>
+                    <button className={styles.ctaButton}>Repor Estoque</button>
                   </div>
                 </div>
               ))}
@@ -124,6 +125,7 @@ export const StockAlerts: React.FC<StockAlertsProps> = ({ alerts }) => {
                       <span className={styles.expiryDateText}>
                         Data de validade: <strong>{formatDate(item.expirationDate)}</strong>
                       </span>
+                      <button className={styles.ctaButton}>Aplicar Desconto</button>
                     </div>
                   </div>
                 );

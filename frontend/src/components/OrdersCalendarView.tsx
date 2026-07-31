@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './css/OrdersCalendarView.module.css';
 
 import FullCalendar from '@fullcalendar/react'
@@ -10,7 +11,9 @@ interface OrdersCalendarViewProps {
 }
 
 export const OrdersCalendarView: React.FC<OrdersCalendarViewProps> = ({ orders }) => {
+  const navigate = useNavigate();
   const events = orders.map(o => ({
+    id: o.id,
     title: o.clientName,
     date: o.deliveryDate
   }))
@@ -29,6 +32,7 @@ export const OrdersCalendarView: React.FC<OrdersCalendarViewProps> = ({ orders }
         height="auto"
         eventDisplay="block"
         events={events}
+        eventClick={(info) => navigate(`/pedido/${info.event.id}`)}
       />
     </div>
   );

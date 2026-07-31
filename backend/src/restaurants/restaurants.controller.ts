@@ -1,14 +1,19 @@
-import { Body, Controller, Post, Get, Patch, Req, UseGuards, ForbiddenException, Param, Query } from '@nestjs/common';
+import { Body, Controller, Post, Get, Patch, Req, UseGuards, ForbiddenException, Param, Query, UploadedFile, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, UseInterceptors } from '@nestjs/common';
 import { ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { RestaurantsService } from './restaurants.service';
 import { CreateRestaurantDto, LinktreeDto } from '../dtos/restaurant.dto';
 import { UpdateRestaurantDto } from '../dtos/update-restaurant.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { accessDto } from 'src/dtos/restaurant.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { BucketService } from '../shared/bucket.service';
 
 @Controller('restaurants')
 export class RestaurantsController {
-  constructor(private readonly restaurantsService: RestaurantsService) {}
+  constructor(
+    private readonly restaurantsService: RestaurantsService,
+    private readonly uploadService: BucketService
+  ) {}
 
   @ApiOperation({ summary: 'Create a new Restaurant and assign to user' })
   @ApiBearerAuth()
@@ -30,7 +35,29 @@ export class RestaurantsController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Patch()
-  async updateMyRestaurant(@Body() body: UpdateRestaurantDto, @Req() req: any) {
+  @UseInterceptors(FileInterceptor('photo'))
+  async updateMyRestaurant(@Body() body: UpdateRestaurantDto, @Req() req: any,
+        @UploadedFile(
+              new ParseFilePipe({
+                  validators: [
+                  new MaxFileSizeValidator({ maxSize: 10 * 1024 * 1024 }),
+                  new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }),
+                  ],
+                  fileIsRequired: false,
+              }),
+          ) photo?: Express.Multer.File) {
+
+    if (!req.user.restaurantId) {
+            throw new ForbiddenException('Usuário não possui restaurante vinculado.');
+        }
+
+        let imageUrl: string | undefined;
+
+        if (photo) {
+            imageUrl = await this.uploadService.uploadImage(photo);
+            body.logoUrl = imageUrl;
+        }
+        
     return this.restaurantsService.updateMyRestaurant(req.user.restaurantId, body);
   }
 

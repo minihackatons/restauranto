@@ -21,4 +21,9 @@ export class UpdateRestaurantDto {
     @IsString()
     @IsOptional()
     phone?: string;
+
+    @ApiProperty({ example: 'https://s3.aws.com/...', required: false })
+    @IsString()
+    @IsOptional()
+    logoUrl?: string;
 }

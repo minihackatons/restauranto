@@ -22,6 +22,7 @@ interface CartItem extends Item {
 const CreateOrderPage: React.FC = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [checkoutStage, setCheckoutStage] = useState<'cart' | 'details'>('cart');
 
   // Checkout form states
   const [clientName, setClientName] = useState('');
@@ -49,6 +50,7 @@ const CreateOrderPage: React.FC = () => {
     onSuccess: () => {
       showToast('Pedido registrado com sucesso!', 'success');
       setCart([]);
+      setCheckoutStage('cart');
     },
     onError: (error: any) => {
       if (error.message?.includes('INSUFFICIENT_STOCK')) {
@@ -111,12 +113,13 @@ const CreateOrderPage: React.FC = () => {
 
         <PageHeader title="Registrar Novo Pedido" />
 
-        {/* POS LAYOUT (MENU + CART) */}
-        <div className={styles.posLayout}>
+        {/* WIZARD LAYOUT */}
+        <div className={styles.wizardContainer}>
 
-          {/* MENU SECTION */}
-          <div className={styles.menuSection}>
-            <div className={styles.searchContainer}>
+          {/* STAGE 1: ITEMS */}
+          {checkoutStage === 'cart' && (
+            <div className={styles.menuSection}>
+              <div className={styles.searchContainer}>
               <div className={styles.searchInputWrapper}>
                 <Search size={18} color="#8e8e93" />
                 <input
@@ -181,124 +184,109 @@ const CreateOrderPage: React.FC = () => {
               )}
             </div>
           </div>
+          )}
 
-          {/* CART SECTION */}
-          <div className={styles.cartSection}>
-            <div className={styles.cartHeader}>
-              <ShoppingCart size={22} />
-              Carrinho
-            </div>
-
-            <div className={styles.cartItems}>
-              {cart.length === 0 ? (
-                <div className={styles.emptyCart}>
-                  <PackageOpen size={48} strokeWidth={1.5} />
-                  <span>O carrinho está vazio.</span>
+          {/* STAGE 2: DETAILS */}
+          {checkoutStage === 'details' && (
+            <div className={styles.checkoutForm}>
+              <div className={styles.inputRow}>
+                <div className={styles.formGroup} style={{ flex: 1 }}>
+                  <span className={styles.formLabel}>Cliente</span>
+                  <input type="text" className={styles.inputField} placeholder="Nome" value={clientName} onChange={e => setClientName(e.target.value)} />
                 </div>
-              ) : (
-                <>
-                  {cart.map(item => (
-                    <div key={item.id} className={styles.cartItem}>
-                      <div className={styles.cartItemInfo}>
-                        <span className={styles.cartItemName}>{item.name}</span>
-                        <span className={styles.cartItemPrice}>R$ {Number(item.price).toFixed(2).replace('.', ',')} un</span>
-                      </div>
-                      <div className={styles.cartItemActions}>
-                        <button className={`${styles.controlBtn} ${styles.btnMinus}`} onClick={() => removeFromCart(item.id)} style={{ width: 28, height: 28, fontSize: 16 }}>
-                          <Minus size={14} />
-                        </button>
-                        <span className={styles.qtyDisplay} style={{ fontSize: 14 }}>{item.quantity}</span>
-                        <button className={`${styles.controlBtn} ${styles.btnPlus}`} onClick={() => addToCart(item)} style={{ width: 28, height: 28, fontSize: 16 }}>
-                          <Plus size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                <div className={styles.formGroup} style={{ flex: 1 }}>
+                  <span className={styles.formLabel}>Contato</span>
+                  <input type="text" className={styles.inputField} placeholder="Telefone" value={clientContact} onChange={e => setClientContact(e.target.value)} />
+                </div>
+              </div>
 
-                  {/* Checkout Details Form directly inside cart */}
-                  <div className={styles.checkoutForm}>
-                    <div className={styles.inputRow}>
-                      <div className={styles.formGroup} style={{ flex: 1 }}>
-                        <span className={styles.formLabel}>Cliente</span>
-                        <input type="text" className={styles.inputField} placeholder="Nome" value={clientName} onChange={e => setClientName(e.target.value)} />
-                      </div>
-                      <div className={styles.formGroup} style={{ flex: 1 }}>
-                        <span className={styles.formLabel}>Contato</span>
-                        <input type="text" className={styles.inputField} placeholder="Telefone" value={clientContact} onChange={e => setClientContact(e.target.value)} />
-                      </div>
-                    </div>
+              <div className={styles.formGroup}>
+                <span className={styles.formLabel}>Endereço (opcional)</span>
+                <input type="text" className={styles.inputField} placeholder="Rua, Número, Bairro" value={deliveryAddress} onChange={e => setDeliveryAddress(e.target.value)} />
+              </div>
 
-                    <div className={styles.formGroup}>
-                      <span className={styles.formLabel}>Endereço (opcional)</span>
-                      <input type="text" className={styles.inputField} placeholder="Rua, Número, Bairro" value={deliveryAddress} onChange={e => setDeliveryAddress(e.target.value)} />
-                    </div>
+              <div className={styles.formGroup}>
+                <span className={styles.formLabel}>Data de Entrega</span>
+                <input type="datetime-local" className={styles.inputField} value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} />
+              </div>
 
-                    <div className={styles.formGroup}>
-                      <span className={styles.formLabel}>Data de Entrega</span>
-                      <input type="datetime-local" className={styles.inputField} value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} />
-                    </div>
+              <div className={styles.formGroup}>
+                <span className={styles.formLabel}>Desconto (R$)</span>
+                <input type="number" min="0" className={styles.inputField} value={discount || ''} onChange={e => setDiscount(Number(e.target.value))} />
+              </div>
 
-                    <div className={styles.formGroup}>
-                      <span className={styles.formLabel}>Canal</span>
-                      <div className={styles.toggleGrid}>
-                        <div className={`${styles.toggleBtn} ${channel === 'loja' ? styles.active : ''}`} onClick={() => setChannel('loja')}>
-                          <Store size={20} />
-                          Loja
-                        </div>
-                        <div className={`${styles.toggleBtn} ${channel === 'whatsapp' ? styles.active : ''}`} onClick={() => setChannel('whatsapp')}>
-                          <MessageCircle size={20} />
-                          Zap
-                        </div>
-                        <div className={`${styles.toggleBtn} ${channel === 'ifood' ? styles.active : ''}`} onClick={() => setChannel('ifood')}>
-                          <UtensilsCrossed size={20} />
-                          iFood
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                      <span className={styles.formLabel}>Pagamento</span>
-                      <div className={styles.toggleGrid}>
-                        <div className={`${styles.toggleBtn} ${paymentMethod === 'cartao' ? styles.active : ''}`} onClick={() => setPaymentMethod('cartao')}>
-                          <CreditCard size={20} />
-                          Cartão
-                        </div>
-                        <div className={`${styles.toggleBtn} ${paymentMethod === 'pix' ? styles.active : ''}`} onClick={() => setPaymentMethod('pix')}>
-                          <QrCode size={20} />
-                          Pix
-                        </div>
-                        <div className={`${styles.toggleBtn} ${paymentMethod === 'dinheiro' ? styles.active : ''}`} onClick={() => setPaymentMethod('dinheiro')}>
-                          <Banknote size={20} />
-                          Nota
-                        </div>
-                      </div>
-                    </div>
+              <div className={styles.formGroup}>
+                <span className={styles.formLabel}>Canal</span>
+                <div className={styles.toggleGrid}>
+                  <div className={`${styles.toggleBtn} ${channel === 'loja' ? styles.active : ''}`} onClick={() => setChannel('loja')}>
+                    <Store size={20} />
+                    Loja
                   </div>
-                </>
-              )}
-            </div>
-
-            <div className={styles.cartFooter}>
-              <div className={styles.formGroup} style={{ marginBottom: 16 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span className={styles.formLabel}>Desconto (R$)</span>
-                  <input type="number" min="0" className={styles.inputField} style={{ width: 100, textAlign: 'right', padding: '8px 12px' }} value={discount || ''} onChange={e => setDiscount(Number(e.target.value))} />
+                  <div className={`${styles.toggleBtn} ${channel === 'whatsapp' ? styles.active : ''}`} onClick={() => setChannel('whatsapp')}>
+                    <MessageCircle size={20} />
+                    Zap
+                  </div>
+                  <div className={`${styles.toggleBtn} ${channel === 'ifood' ? styles.active : ''}`} onClick={() => setChannel('ifood')}>
+                    <UtensilsCrossed size={20} />
+                    iFood
+                  </div>
                 </div>
               </div>
-              <div className={styles.cartTotal}>
-                <span>Total</span>
-                <span>R$ {Math.max(0, totalAmount - (discount || 0)).toFixed(2).replace('.', ',')}</span>
-              </div>
-              <button
-                className={styles.submitBtn}
-                disabled={cart.length === 0 || createOrderMutation.isPending}
-                onClick={() => handleSubmit(false)}
-              >
-                {createOrderMutation.isPending ? 'Enviando...' : 'Finalizar Pedido'}
-              </button>
-            </div>
-          </div>
 
+              <div className={styles.formGroup}>
+                <span className={styles.formLabel}>Pagamento</span>
+                <div className={styles.toggleGrid}>
+                  <div className={`${styles.toggleBtn} ${paymentMethod === 'cartao' ? styles.active : ''}`} onClick={() => setPaymentMethod('cartao')}>
+                    <CreditCard size={20} />
+                    Cartão
+                  </div>
+                  <div className={`${styles.toggleBtn} ${paymentMethod === 'pix' ? styles.active : ''}`} onClick={() => setPaymentMethod('pix')}>
+                    <QrCode size={20} />
+                    Pix
+                  </div>
+                  <div className={`${styles.toggleBtn} ${paymentMethod === 'dinheiro' ? styles.active : ''}`} onClick={() => setPaymentMethod('dinheiro')}>
+                    <Banknote size={20} />
+                    Nota
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+        </div>
+
+        {/* BOTTOM ACTION BAR */}
+        <div className={styles.bottomActionBar}>
+          <div className={styles.bottomActionInner}>
+            {checkoutStage === 'cart' ? (
+              <button
+                className={styles.bigSubmitBtn}
+                disabled={cart.length === 0}
+                onClick={() => setCheckoutStage('details')}
+              >
+                Continuar • R$ {totalAmount.toFixed(2).replace('.', ',')}
+              </button>
+            ) : (
+              <>
+                <div className={styles.bottomActionTotal}>
+                  <span>Total a Cobrar</span>
+                  <span>R$ {Math.max(0, totalAmount - (discount || 0)).toFixed(2).replace('.', ',')}</span>
+                </div>
+                <div className={styles.actionButtonsRow}>
+                  <button className={styles.backBtn} onClick={() => setCheckoutStage('cart')}>
+                    Voltar
+                  </button>
+                  <button
+                    className={styles.bigSubmitBtn}
+                    disabled={createOrderMutation.isPending}
+                    onClick={() => handleSubmit(false)}
+                  >
+                    {createOrderMutation.isPending ? 'Enviando...' : 'Finalizar Pedido'}
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </main>
 

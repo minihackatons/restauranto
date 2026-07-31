@@ -157,7 +157,13 @@ export const api = {
   },
 
   updateMyRestaurant: async (data: any) => {
-    const response = await api.patch("/restaurants", data);
+    let response;
+    if (data instanceof FormData) {
+      response = await api.patchFormData("/restaurants", data);
+    } else {
+      response = await api.patch("/restaurants", data);
+    }
+    
     if (!response.ok) {
       const err = await response.json().catch(() => null);
       throw new Error(err?.message || 'Erro ao atualizar o restaurante');
@@ -283,8 +289,8 @@ export const api = {
     return response.json();
   },
 
-  fetchFinanceOverview: async () => {
-    const response = await api.get('/finance');
+  fetchFinanceOverview: async (period: string = 'week') => {
+    const response = await api.get(`/finance?period=${period}`);
     if (!response.ok) {
       throw new Error('Erro ao buscar visão geral financeira');
     }

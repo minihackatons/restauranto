@@ -10,7 +10,6 @@ import { PageHeader } from '../components/PageHeader';
 import { useToast } from '../components/Toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
-import { StockAlerts } from '../components/StockAlerts';
 
 const InventoryPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -18,6 +17,7 @@ const InventoryPage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [stockFilter, setStockFilter] = useState<'all' | 'low' | 'expiring'>('all');
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['menuItems'],
@@ -135,7 +135,7 @@ const InventoryPage: React.FC = () => {
                       <div>
                         {item.photoUrl ? (
                           <img
-                            src={`http://localhost:3000/items/${item.photoUrl.split(/[\\/]/).pop()}`}
+                            src={`${item.photoUrl}`}
                             alt={item.name}
                             className={styles.itemImagePlaceholder}
                             style={{ objectFit: 'cover' }}
@@ -182,38 +182,144 @@ const InventoryPage: React.FC = () => {
 
             </div>
           ) : (
-            <div>
-              <StockAlerts alerts={alertsData || null} />
+            <>
+              <div className={styles.filtersContainer}>
+                <div 
+                  className={`${styles.filterChip} ${stockFilter === 'all' ? styles.activeFilterChip : ''}`}
+                  onClick={() => setStockFilter('all')}
+                >
+                  Todos
+                </div>
+                <div 
+                  className={`${styles.filterChip} ${stockFilter === 'low' ? styles.activeFilterChip : ''}`}
+                  onClick={() => setStockFilter('low')}
+                >
+                  Estoque Baixo
+                </div>
+                <div 
+                  className={`${styles.filterChip} ${stockFilter === 'expiring' ? styles.activeFilterChip : ''}`}
+                  onClick={() => setStockFilter('expiring')}
+                >
+                  Vencendo
+                </div>
+              </div>
 
-              {!isLoadingStock && !errorStock && stockData && stockData.length > 0 ? (
-                stockData.map((item: any) => (
-                  <div className={styles.itemCard} key={item.id}>
-                    <div className={styles.itemInfo}>
-                      <span className={styles.itemName}>{item.name}</span>
-                      <span className={styles.itemPrice}>R$ {Number(item.maxStock > 0 ? item.cost / item.maxStock : item.cost).toFixed(2)} / {item.measureUnit}</span>
-                      <span className={styles.itemStock}>
-                        Em estoque: {item.stockAmount} {item.measureUnit}
-                      </span>
-                      {item.expirationDate && (
-                        <span className={styles.itemStock} style={{ color: '#eab308' }}>
-                          Validade: {item.expirationDate.substring(0, 10).split('-').reverse().join('/')}
+              <div className={alertsData && alertsData.totalAlerts > 0 ? styles.stockLayout : styles.stockLayoutNoAlerts}>
+                <div className={styles.stockMainArea}>
+                  {!isLoadingStock && !errorStock && stockData && stockData.length > 0 ? (
+                stockData.filter((item: any) => {
+                  if (stockFilter === 'all') return true;
+                  const percentage = item.maxStock > 0 ? (item.stockAmount / item.maxStock) * 100 : 100;
+                  const isLow = percentage <= (item.alertThreshold ?? 20);
+                  
+                  let isExpiring = false;
+                  if (item.expirationDate) {
+                    const expiry = new Date(item.expirationDate);
+                    const now = new Date();
+                    const diffDays = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 3600 * 24));
+                    isExpiring = diffDays <= (item.alertDaysBefore ?? 7);
+                  }
+                  
+                  if (stockFilter === 'low') return isLow;
+                  if (stockFilter === 'expiring') return isExpiring;
+                  return true;
+                }).map((item: any) => {
+                  const percentage = item.maxStock > 0 ? Math.min(Math.max((item.stockAmount / item.maxStock) * 100, 0), 100) : 100;
+                  const isLow = percentage <= (item.alertThreshold ?? 20);
+                  let isExpiring = false;
+                  if (item.expirationDate) {
+                    const expiry = new Date(item.expirationDate);
+                    const now = new Date();
+                    const diffDays = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 3600 * 24));
+                    isExpiring = diffDays <= (item.alertDaysBefore ?? 7);
+                  }
+
+                  return (
+                    <div className={styles.itemCard} key={item.id}>
+                      <div className={styles.itemInfo}>
+                        <span className={styles.itemName}>{item.name}</span>
+                        <span className={styles.itemPrice}>R$ {Number(item.maxStock > 0 ? item.cost / item.maxStock : item.cost).toFixed(2)} / {item.measureUnit}</span>
+                        <span className={styles.itemStock}>
+                          Em estoque: {item.stockAmount} {item.measureUnit}
                         </span>
-                      )}
-                      <span className={styles.itemStock} style={{ color: '#8e8e93', fontSize: '0.8rem' }}>
-                        Alerta: {item.alertThreshold ?? 20}% do estoque · {item.alertDaysBefore ?? 7} dias antes do vencimento
-                      </span>
+                        
+                        {item.maxStock > 0 && (
+                          <div className={styles.itemProgressTrack}>
+                            <div 
+                              className={styles.itemProgressBar} 
+                              style={{ 
+                                width: `${percentage}%`,
+                                background: '#6366f1'
+                              }} 
+                            />
+                          </div>
+                        )}
+
+                        {item.expirationDate && (
+                          <span className={styles.itemStock} style={{ color: isExpiring ? '#ef4444' : '#eab308' }}>
+                            Validade: {item.expirationDate.substring(0, 10).split('-').reverse().join('/')}
+                          </span>
+                        )}
+                        
+                        <div style={{ display: 'flex', gap: '12px', marginTop: '4px' }}>
+                          {isLow && (
+                            <span className={`${styles.statusBadge} ${styles.badgeWarning}`}>• Estoque Baixo</span>
+                          )}
+                          {isExpiring && (
+                            <span className={`${styles.statusBadge} ${styles.badgeDanger}`}>• Vence em Breve</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className={styles.itemActions}>
+                        <Edit2 className={styles.actionIcon} />
+                      </div>
                     </div>
-                    <div className={styles.itemActions}>
-                      <Edit2 className={styles.actionIcon} />
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <div className={styles.emptyState}>
                   <p>O controle de estoque está vazio no momento.</p>
                 </div>
               )}
+              </div>
+
+              {alertsData && alertsData.totalAlerts > 0 && (
+                <aside className={styles.stockSideAlerts}>
+                  {alertsData.lowStock.length > 0 && (
+                    <div className={styles.sideAlertSection}>
+                      <span className={styles.sideAlertTitle} style={{ color: '#f59e0b', borderColor: 'rgba(245, 158, 11, 0.2)' }}>Estoque Baixo</span>
+                      {alertsData.lowStock.map((item: any) => (
+                        <div key={item.id} className={styles.sideAlertItem}>
+                          <span>{item.name}</span>
+                          <strong>{item.stockAmount} {item.measureUnit}</strong>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {alertsData.expiringSoon.length > 0 && (
+                    <div className={styles.sideAlertSection}>
+                      <span className={styles.sideAlertTitle} style={{ color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.2)' }}>Vencendo</span>
+                      {alertsData.expiringSoon.map((item: any) => {
+                        const isExpired = item.daysUntilExpiry < 0;
+                        const isToday = item.daysUntilExpiry === 0;
+                        let text = `${item.daysUntilExpiry}d`;
+                        if (isExpired) text = 'Vencido';
+                        if (isToday) text = 'Hoje';
+                        
+                        return (
+                          <div key={item.id} className={styles.sideAlertItem}>
+                            <span>{item.name}</span>
+                            <strong style={{ color: isExpired ? '#ef4444' : '#fff' }}>{text}</strong>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </aside>
+              )}
             </div>
+            </>
           )}
         </div>
 

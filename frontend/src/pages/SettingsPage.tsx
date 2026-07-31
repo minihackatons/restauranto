@@ -4,11 +4,13 @@ import { PageHeader } from '../components/PageHeader';
 import styles from './css/SettingsPage.module.css';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../services/api';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Image as ImageIcon } from 'lucide-react';
 
 const SettingsPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [successMsg, setSuccessMsg] = useState('');
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     name: '',
@@ -30,6 +32,9 @@ const SettingsPage: React.FC = () => {
         address: restaurant.address || '',
         phone: restaurant.phone || ''
       });
+      if (restaurant.logoUrl) {
+        setLogoPreviewUrl(restaurant.logoUrl);
+      }
     }
   }, [restaurant]);
 
@@ -49,9 +54,28 @@ const SettingsPage: React.FC = () => {
     });
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setLogoFile(file);
+      setLogoPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate(formData);
+    
+    if (logoFile) {
+      const form = new FormData();
+      form.append('name', formData.name);
+      form.append('document', formData.document);
+      form.append('address', formData.address);
+      form.append('phone', formData.phone);
+      form.append('photo', logoFile);
+      mutation.mutate(form);
+    } else {
+      mutation.mutate(formData);
+    }
   };
 
   return (
@@ -72,6 +96,23 @@ const SettingsPage: React.FC = () => {
               {successMsg && <div className={styles.successMessage}>{successMsg}</div>}
               
               <form onSubmit={handleSubmit}>
+                <div className={styles.logoUploadContainer}>
+                  <div 
+                    className={styles.logoPreview}
+                    style={logoPreviewUrl ? { backgroundImage: `url(${logoPreviewUrl})` } : {}}
+                  >
+                    {!logoPreviewUrl && <ImageIcon size={32} opacity={0.5} />}
+                  </div>
+                  <div className={styles.logoInputWrapper}>
+                    <label className={styles.label}>Logo do Restaurante</label>
+                    <input 
+                      type="file" 
+                      accept="image/png, image/jpeg, image/jpg"
+                      onChange={handleFileChange} 
+                    />
+                  </div>
+                </div>
+
                 <div className={styles.formGroup}>
                   <label className={styles.label}>Nome do Restaurante</label>
                   <input 
